@@ -11,6 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+
+using CopeID.API.Services;
 
 namespace CopeID.API
 {
@@ -26,12 +29,20 @@ namespace CopeID.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<CopeIdDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+            );
+
+            services.AddCors();
 
             services.AddControllers();
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CopeID.API", Version = "v1" });
             });
+
+            services.AddScoped<CopepodService, CopepodService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
