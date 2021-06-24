@@ -38,7 +38,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCopepod(Guid id)
         {
-            Copepod copepod = await _copepodService.GetCopepod(id);
+            Copepod copepod = await _copepodService.GetUntrackedCopepod(id);
             if (copepod == null)
             {
                 return BadRequest("Invalid Copepod ID provided.");
@@ -65,6 +65,44 @@ namespace CopeID.API.Controllers
             }
 
             return CreatedAtAction(nameof(CreateCopepod), copepod);
+        }
+
+        [HttpPut]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateCopepod([FromBody] Copepod model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Copepod model provided.");
+            }
+
+            Copepod copepod = await _copepodService.UpdateCopeod(model);
+            if (copepod == null)
+            {
+                return BadRequest("Unable to update Copepod.");
+            }
+
+            return Ok(copepod);
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteCopepod(Guid id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Copepod model provided.");
+            }
+
+            Copepod copeod = await _copepodService.DeleteCopepod(id);
+            if (copeod == null)
+            {
+                return BadRequest("Unable to delete Copepod.");
+            }
+
+            return NoContent();
         }
     }
 }
