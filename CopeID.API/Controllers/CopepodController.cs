@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 using CopeID.API.Models;
 using CopeID.API.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace CopeID.API.Controllers
 {
@@ -25,6 +26,7 @@ namespace CopeID.API.Controllers
         }
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult GetAllCopepods()
         {
             List<Copepod> models = _copepodService.GetAllCopepods().ToList();
@@ -32,6 +34,8 @@ namespace CopeID.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetCopepod(Guid id)
         {
             Copepod copepod = await _copepodService.GetCopepod(id);
@@ -41,6 +45,26 @@ namespace CopeID.API.Controllers
             }
 
             return Ok(copepod);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+
+        public async Task<IActionResult> CreateCopepod([FromBody] Copepod model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid Copepod model provided.");
+            }
+
+            Copepod copepod = await _copepodService.CreateCopepod(model);
+            if (copepod == null)
+            {
+                return BadRequest("Unable to create Copepod.");
+            }
+
+            return CreatedAtAction(nameof(CreateCopepod), copepod);
         }
     }
 }

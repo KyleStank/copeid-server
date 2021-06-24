@@ -12,6 +12,8 @@ namespace CopeID.API.Services
     {
         IEnumerable<Copepod> GetAllCopepods();
         Task<Copepod> GetCopepod(Guid id);
+
+        Task<Copepod> CreateCopepod(Copepod model);
     }
 
     public class CopepodService : ICopepodService
@@ -33,6 +35,22 @@ namespace CopeID.API.Services
         public async Task<Copepod> GetCopepod(Guid id)
         {
             return await _set.FindAsync(id);
+        }
+
+        public async Task<Copepod> CreateCopepod(Copepod model)
+        {
+            Copepod result = (await _context.AddAsync(model))?.Entity ?? null;
+            if (result != null)
+            {
+                await SaveChanges();
+            }
+
+            return result;
+        }
+
+        private async Task<int> SaveChanges()
+        {
+            return await _context.SaveChangesAsync();
         }
     }
 }
