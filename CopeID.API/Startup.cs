@@ -42,7 +42,7 @@ namespace CopeID.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CopeID.API", Version = "v1" });
             });
 
-            services.AddScoped<CopepodService, CopepodService>();
+            services.AddScoped<ICopepodService, CopepodService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
