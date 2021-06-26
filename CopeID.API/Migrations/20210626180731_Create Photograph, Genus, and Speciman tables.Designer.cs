@@ -4,14 +4,16 @@ using CopeID.API;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CopeID.API.Migrations
 {
     [DbContext(typeof(CopeIdDbContext))]
-    partial class CopeIdDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210626180731_Create Photograph, Genus, and Speciman tables")]
+    partial class CreatePhotographGenusandSpecimantables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
