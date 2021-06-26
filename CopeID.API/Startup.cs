@@ -53,6 +53,16 @@ namespace CopeID.API
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "CopeID.API v1"));
+
+                app.UseCors(policy => policy
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+                );
+            }
+            else
+            {
+                app.UseCors();
             }
 
             app.UseHttpsRedirection();
