@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace CopeID.API.Models
 {
-    public class Photograph
+    public class Photograph : Entity
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         public string Title { get; set; }
 
         public string Description { get; set; }
