@@ -37,12 +37,12 @@ namespace CopeID.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> GetEntity(Guid id)
+        public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            TEntity entity = await _entityService.GetUntrackedEntity(id);
+            TEntity entity = await _entityService.GetUntrackedEntity(id, include);
             if (entity == null)
             {
-                return BadRequest("Invalid Photograph ID provided.");
+                return BadRequest("Invalid Entity ID provided.");
             }
 
             return Ok(entity);

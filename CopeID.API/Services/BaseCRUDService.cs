@@ -2,55 +2,79 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.API.Controllers;
 using CopeID.API.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseCRUDService<T>
+    public interface IBaseCRUDService<TEntity> where TEntity : Entity
     {
-        IEnumerable<T> GetAllEntities();
-        Task<T> GetTrackedEntity(Guid id);
-        Task<T> GetUntrackedEntity(Guid id);
+        IQueryable<TEntity> CreateQuery();
 
-        Task<T> CreateEntity(T model);
+        IEnumerable<TEntity> GetAllEntities();
+        Task<TEntity> GetTrackedEntity(Guid id);
+        Task<TEntity> GetUntrackedEntity(Guid id, string[] include = null);
 
-        Task<T> UpdateEntity(T model);
+        Task<TEntity> CreateEntity(TEntity model);
 
-        Task<T> DeleteEntity(Guid id);
+        Task<TEntity> UpdateEntity(TEntity model);
+
+        Task<TEntity> DeleteEntity(Guid id);
     }
 
-    public abstract class BaseCRUDService<T> : IBaseCRUDService<T> where T : Entity
+    public abstract class BaseCRUDService<TEntity> : IBaseCRUDService<TEntity> where TEntity : Entity
     {
         protected readonly CopeIdDbContext _context;
-        protected readonly DbSet<T> _set;
+        protected readonly DbSet<TEntity> _set;
+
+        protected static readonly IEnumerable<PropertyInfo> _entityProperties = typeof(TEntity).GetProperties().AsEnumerable();
 
         public BaseCRUDService(CopeIdDbContext context)
         {
             _context = context;
-            _set = _context.Set<T>();
+            _set = _context.Set<TEntity>();
         }
 
-        public IEnumerable<T> GetAllEntities()
+        public IQueryable<TEntity> CreateQuery()
+        {
+            return _set.AsQueryable();
+        }
+
+        public IEnumerable<TEntity> GetAllEntities()
         {
             return _set.AsEnumerable();
         }
 
-        public async Task<T> GetTrackedEntity(Guid id)
+        public async Task<TEntity> GetTrackedEntity(Guid id)
         {
             return await _set.FindAsync(id);
         }
 
-        public async Task<T> GetUntrackedEntity(Guid id)
+        public async Task<TEntity> GetUntrackedEntity(Guid id, string[] include = null)
         {
-            return await _set.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            IQueryable<TEntity> query = _set.AsQueryable().AsNoTracking().Where(x => x.Id == id);
+            if (include != null)
+            {
+                for (int i = 0; i < include.Length; i++)
+                {
+                    string prop = include[i];
+                    if (_entityProperties.Any(x => x.Name == prop))
+                    {
+                        query = query.Include(prop);
+                    }
+                }
+            }
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<T> CreateEntity(T model)
+        public async Task<TEntity> CreateEntity(TEntity model)
         {
-            T result = (await _context.AddAsync(model))?.Entity ?? null;
+            TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
@@ -59,14 +83,14 @@ namespace CopeID.API.Services
             return result;
         }
 
-        public async Task<T> UpdateEntity(T model)
+        public async Task<TEntity> UpdateEntity(TEntity model)
         {
             if (model == null || !_set.Any(x => x.Id == model.Id))
             {
                 return null;
             }
 
-            T result = _set.Update(model)?.Entity ?? null;
+            TEntity result = _set.Update(model)?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
@@ -75,15 +99,15 @@ namespace CopeID.API.Services
             return result;
         }
 
-        public async Task<T> DeleteEntity(Guid id)
+        public async Task<TEntity> DeleteEntity(Guid id)
         {
-            T model = await GetUntrackedEntity(id);
+            TEntity model = await GetUntrackedEntity(id);
             if (model == null)
             {
                 return null;
             }
 
-            T result = _context.Remove(model)?.Entity ?? null;
+            TEntity result = _context.Remove(model)?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
