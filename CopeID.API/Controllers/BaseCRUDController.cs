@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
+using CopeID.API.Extensions;
 using CopeID.API.Models;
 using CopeID.API.Services;
 
@@ -28,9 +29,9 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual IActionResult GetAllEntites()
+        public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
-            List<TEntity> entities = _entityService.GetAllEntities().ToList();
+            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPaselCase()).ToList();
             return Ok(entities);
         }
 
@@ -39,7 +40,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            TEntity entity = await _entityService.GetUntrackedEntity(id, include);
+            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPaselCase());
             if (entity == null)
             {
                 return BadRequest("Invalid Entity ID provided.");
