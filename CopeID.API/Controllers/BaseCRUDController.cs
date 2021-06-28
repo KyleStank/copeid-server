@@ -13,15 +13,15 @@ using CopeID.API.Services;
 
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseCRUDController<TEntity, TLogger, TService> : ControllerBase
+    public abstract class BaseCrudController<TEntity, TLogger, TService> : ControllerBase
         where TEntity : Entity
         where TLogger : ControllerBase
-        where TService : IBaseCRUDService<TEntity>
+        where TService : IBaseCrudService<TEntity>
     {
         protected readonly ILogger<TLogger> _logger;
         protected readonly TService _entityService;
 
-        public BaseCRUDController(ILogger<TLogger> logger, TService entityService)
+        public BaseCrudController(ILogger<TLogger> logger, TService entityService)
         {
             _logger = logger;
             _entityService = entityService;

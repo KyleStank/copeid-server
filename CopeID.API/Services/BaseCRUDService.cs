@@ -6,12 +6,11 @@ using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
-using CopeID.API.Controllers;
 using CopeID.API.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseCRUDService<TEntity> where TEntity : Entity
+    public interface IBaseCrudService<TEntity> where TEntity : Entity
     {
         IEnumerable<TEntity> GetAllEntities(string[] include = null);
         Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null);
@@ -24,14 +23,14 @@ namespace CopeID.API.Services
         Task<TEntity> DeleteEntity(Guid id);
     }
 
-    public abstract class BaseCRUDService<TEntity> : IBaseCRUDService<TEntity> where TEntity : Entity
+    public abstract class BaseCrudService<TEntity> : IBaseCrudService<TEntity> where TEntity : Entity
     {
         protected readonly CopeIdDbContext _context;
         protected readonly DbSet<TEntity> _set;
 
         protected static readonly IEnumerable<PropertyInfo> _entityProperties = typeof(TEntity).GetProperties().AsEnumerable();
 
-        public BaseCRUDService(CopeIdDbContext context)
+        public BaseCrudService(CopeIdDbContext context)
         {
             _context = context;
             _set = _context.Set<TEntity>();

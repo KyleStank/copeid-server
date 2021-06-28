@@ -2,9 +2,9 @@
 
 namespace CopeID.API.Services
 {
-    public interface IPhotographService : IBaseCRUDService<Photograph> { }
+    public interface IPhotographService : IBaseCrudService<Photograph> { }
 
-    public class PhotographService : BaseCRUDService<Photograph>, IPhotographService
+    public class PhotographService : BaseCrudService<Photograph>, IPhotographService
     {
         public PhotographService(CopeIdDbContext context) : base(context) { }
     }
