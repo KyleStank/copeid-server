@@ -3,54 +3,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Microsoft.EntityFrameworkCore;
-
 using CopeID.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseCRUDService<T>
+    public interface ICopepodService
     {
-        IEnumerable<T> GetAllEntities();
-        Task<T> GetTrackedEntity(Guid id);
-        Task<T> GetUntrackedEntity(Guid id);
+        IEnumerable<Copepod> GetAllCopepods();
+        Task<Copepod> GetTrackedCopepod(Guid id);
+        Task<Copepod> GetUntrackedCopepod(Guid id);
 
-        Task<T> CreateEntity(T model);
+        Task<Copepod> CreateCopepod(Copepod model);
 
-        Task<T> UpdateEntity(T model);
+        Task<Copepod> UpdateCopeod(Copepod model);
 
-        Task<T> DeleteEntity(Guid id);
+        Task<Copepod> DeleteCopepod(Guid id);
     }
 
-    public abstract class BaseCRUDService<T> : IBaseCRUDService<T> where T : Entity
+    public class CopepodService : ICopepodService
     {
-        protected readonly CopeIdDbContext _context;
-        protected readonly DbSet<T> _set;
+        private readonly CopeIdDbContext _context;
+        private readonly DbSet<Copepod> _set;
 
-        public BaseCRUDService(CopeIdDbContext context)
+        public CopepodService(CopeIdDbContext context)
         {
             _context = context;
-            _set = _context.Set<T>();
+            _set = _context.Set<Copepod>();
         }
 
-        public IEnumerable<T> GetAllEntities()
+        public IEnumerable<Copepod> GetAllCopepods()
         {
             return _set.AsEnumerable();
         }
 
-        public async Task<T> GetTrackedEntity(Guid id)
+        public async Task<Copepod> GetTrackedCopepod(Guid id)
         {
             return await _set.FindAsync(id);
         }
 
-        public async Task<T> GetUntrackedEntity(Guid id)
+        public async Task<Copepod> GetUntrackedCopepod(Guid id)
         {
             return await _set.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<T> CreateEntity(T model)
+        public async Task<Copepod> CreateCopepod(Copepod model)
         {
-            T result = (await _context.AddAsync(model))?.Entity ?? null;
+            Copepod result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
@@ -59,14 +58,14 @@ namespace CopeID.API.Services
             return result;
         }
 
-        public async Task<T> UpdateEntity(T model)
+        public async Task<Copepod> UpdateCopeod(Copepod model)
         {
             if (model == null || !_set.Any(x => x.Id == model.Id))
             {
                 return null;
             }
 
-            T result = _set.Update(model)?.Entity ?? null;
+            Copepod result = _set.Update(model)?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
@@ -75,15 +74,15 @@ namespace CopeID.API.Services
             return result;
         }
 
-        public async Task<T> DeleteEntity(Guid id)
+        public async Task<Copepod> DeleteCopepod(Guid id)
         {
-            T model = await GetUntrackedEntity(id);
+            Copepod model = await GetUntrackedCopepod(id);
             if (model == null)
             {
                 return null;
             }
 
-            T result = _context.Remove(model)?.Entity ?? null;
+            Copepod result = _context.Remove(model)?.Entity ?? null;
             if (result != null)
             {
                 await SaveChanges();
