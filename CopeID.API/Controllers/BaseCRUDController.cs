@@ -7,20 +7,21 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
+using CopeID.API.Extensions;
 using CopeID.API.Models;
 using CopeID.API.Services;
 
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseCRUDController<TEntity, TLogger, TService> : ControllerBase
+    public abstract class BaseCrudController<TEntity, TLogger, TService> : ControllerBase
         where TEntity : Entity
         where TLogger : ControllerBase
-        where TService : IBaseCRUDService<TEntity>
+        where TService : IBaseCrudService<TEntity>
     {
         protected readonly ILogger<TLogger> _logger;
         protected readonly TService _entityService;
 
-        public BaseCRUDController(ILogger<TLogger> logger, TService entityService)
+        public BaseCrudController(ILogger<TLogger> logger, TService entityService)
         {
             _logger = logger;
             _entityService = entityService;
@@ -28,21 +29,21 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual IActionResult GetAllEntites()
+        public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
-            List<TEntity> entities = _entityService.GetAllEntities().ToList();
+            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPaselCase()).ToList();
             return Ok(entities);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> GetEntity(Guid id)
+        public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            TEntity entity = await _entityService.GetUntrackedEntity(id);
+            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPaselCase());
             if (entity == null)
             {
-                return BadRequest("Invalid Photograph ID provided.");
+                return BadRequest("Invalid Entity ID provided.");
             }
 
             return Ok(entity);

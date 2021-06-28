@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,87 +10,83 @@ using CopeID.API.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseCRUDService<T>
+    public interface IBaseCrudService<TEntity> where TEntity : Entity
     {
-        IEnumerable<T> GetAllEntities();
-        Task<T> GetTrackedEntity(Guid id);
-        Task<T> GetUntrackedEntity(Guid id);
+        IEnumerable<TEntity> GetAllEntities(string[] include = null);
+        Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null);
+        Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null);
 
-        Task<T> CreateEntity(T model);
+        Task<TEntity> CreateEntity(TEntity model);
 
-        Task<T> UpdateEntity(T model);
+        Task<TEntity> UpdateEntity(TEntity model);
 
-        Task<T> DeleteEntity(Guid id);
+        Task<TEntity> DeleteEntity(Guid id);
     }
 
-    public abstract class BaseCRUDService<T> : IBaseCRUDService<T> where T : Entity
+    public abstract class BaseCrudService<TEntity> : IBaseCrudService<TEntity> where TEntity : Entity
     {
         protected readonly CopeIdDbContext _context;
-        protected readonly DbSet<T> _set;
+        protected readonly DbSet<TEntity> _set;
 
-        public BaseCRUDService(CopeIdDbContext context)
+        protected static readonly IEnumerable<PropertyInfo> _entityProperties = typeof(TEntity).GetProperties().AsEnumerable();
+
+        public BaseCrudService(CopeIdDbContext context)
         {
             _context = context;
-            _set = _context.Set<T>();
+            _set = _context.Set<TEntity>();
         }
 
-        public IEnumerable<T> GetAllEntities()
-        {
-            return _set.AsEnumerable();
-        }
+        public IEnumerable<TEntity> GetAllEntities(string[] include = null) =>
+            GenerateIncludeQuery(include, _set.AsTracking()).AsEnumerable();
 
-        public async Task<T> GetTrackedEntity(Guid id)
-        {
-            return await _set.FindAsync(id);
-        }
+        public async Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null) =>
+            await FindEntityAsync(id, _set.AsTracking(), include);
 
-        public async Task<T> GetUntrackedEntity(Guid id)
-        {
-            return await _set.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        }
+        public async Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null) =>
+            await FindEntityAsync(id, _set.AsNoTracking(), include);
 
-        public async Task<T> CreateEntity(T model)
+        private async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null) =>
+            await GenerateIncludeQuery(include, query.Where(x => x.Id == id)).FirstOrDefaultAsync();
+
+        public async Task<TEntity> CreateEntity(TEntity model)
         {
-            T result = (await _context.AddAsync(model))?.Entity ?? null;
-            if (result != null)
-            {
-                await SaveChanges();
-            }
+            TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
+            if (result != null) await SaveChanges();
 
             return result;
         }
 
-        public async Task<T> UpdateEntity(T model)
+        public async Task<TEntity> UpdateEntity(TEntity model)
         {
-            if (model == null || !_set.Any(x => x.Id == model.Id))
-            {
-                return null;
-            }
+            if (model == null || !_set.Any(x => x.Id == model.Id)) return null;
 
-            T result = _set.Update(model)?.Entity ?? null;
-            if (result != null)
-            {
-                await SaveChanges();
-            }
+            TEntity result = _set.Update(model)?.Entity ?? null;
+            if (result != null) await SaveChanges();
 
             return result;
         }
 
-        public async Task<T> DeleteEntity(Guid id)
+        public async Task<TEntity> DeleteEntity(Guid id)
         {
-            T model = await GetUntrackedEntity(id);
-            if (model == null)
-            {
-                return null;
-            }
+            TEntity model = await GetEntityUntrackedAsync(id);
+            if (model == null) return null;
 
-            T result = _context.Remove(model)?.Entity ?? null;
-            if (result != null)
-            {
-                await SaveChanges();
-            }
+            TEntity result = _context.Remove(model)?.Entity ?? null;
+            if (result != null) await SaveChanges();
 
             return result;
+        }
+
+        private IQueryable<TEntity> GenerateIncludeQuery(string[] include, IQueryable<TEntity> existingQuery = null)
+        {
+            IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
+            if (include != null)
+            {
+                string[] validIncludeProperties = include.Where(s => _entityProperties.Any(p => p.Name == s)).ToArray();
+                foreach (string prop in validIncludeProperties)
+                    query = query.Include(prop);
+            }
+            return query;
         }
 
         private async Task<int> SaveChanges()
