@@ -23,25 +23,57 @@ namespace CopeID.Seeding
 
         static async Task Main(string[] args)
         {
-            using (StreamReader reader = new StreamReader(_photographDataFile))
+            // Read JSON data.
+            string photographJson = await ReadTextFile(_photographDataFile);
+            Photograph[] photographData = JsonConvert.DeserializeObject<Photograph[]>(photographJson);
+
+            string genusJson = await ReadTextFile(_genusDataFile);
+            Genus[] genusData = JsonConvert.DeserializeObject<Genus[]>(genusJson);
+            for (int i = 0; i < genusData.Length; i++)
             {
-                string json = await  reader.ReadToEndAsync();
+                Random rand = new Random();
+
+                Photograph photo = photographData[rand.Next(0, photographData.Length)];
+
+                genusData[i].PhotographId = photo.Id;
             }
 
-            //var options = new DbContextOptionsBuilder<CopeIdDbContext>()
-            //    .UseSqlServer("Server=localhost;Database=CopeId;User=sa;Password=Edison15;")
-            //    .Options;
+            string specimenJson = await ReadTextFile(_specimenDataFile);
+            Specimen[] specimenData = JsonConvert.DeserializeObject<Specimen[]>(specimenJson);
+            for (int i = 0; i < specimenData.Length; i++)
+            {
+                Random rand = new Random();
 
-            //using (var context = new CopeIdDbContext(options))
-            //{
-            //    context.Database.EnsureCreated();
+                Genus genus = genusData[rand.Next(0, genusData.Length)];
+                Photograph photo = photographData[rand.Next(0, photographData.Length)];
 
-            //    var genuses = context.Set<Genus>().ToList();
-            //    var photographs = context.Set<Photograph>().ToList();
-            //    var specimens = context.Set<Specimen>().ToList();
+                specimenData[i].GenusId = genus.Id;
+                specimenData[i].PhotographId = photo.Id;
+            }
 
-            //    context.SaveChanges();
-            //}
+            // Connect to DB.
+            DbContextOptions<CopeIdDbContext> options = new DbContextOptionsBuilder<CopeIdDbContext>()
+                .UseSqlServer("Server=localhost;Database=CopeId;User=sa;Password=Edison15;")
+                .Options;
+
+            using (CopeIdDbContext context = new CopeIdDbContext(options))
+            {
+                context.Database.EnsureCreated();
+
+                await context.Set<Photograph>().AddRangeAsync(photographData);
+                await context.Set<Genus>().AddRangeAsync(genusData);
+                await context.Set<Specimen>().AddRangeAsync(specimenData);
+
+                context.SaveChanges();
+            }
+        }
+
+        static async Task<string> ReadTextFile(string file)
+        {
+            string contents = "";
+            using (StreamReader r = new StreamReader(file))
+                contents += await r.ReadToEndAsync();
+            return contents;
         }
     }
 }
