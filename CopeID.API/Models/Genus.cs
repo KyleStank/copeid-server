@@ -10,6 +10,6 @@ namespace CopeID.API.Models
 
         public string Name { get; set; }
 
-        public ICollection<Speciman> Specimens { get; set; }
+        public ICollection<Specimen> Specimens { get; set; }
     }
 }

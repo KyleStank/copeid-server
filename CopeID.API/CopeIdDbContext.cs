@@ -10,7 +10,7 @@ namespace CopeID.API
 
         public DbSet<Photograph> Photographs { get; set; }
 
-        public DbSet<Speciman> Specimens { get; set; }
+        public DbSet<Specimen> Specimens { get; set; }
 
         public CopeIdDbContext(DbContextOptions<CopeIdDbContext> options) : base(options) { }
     }

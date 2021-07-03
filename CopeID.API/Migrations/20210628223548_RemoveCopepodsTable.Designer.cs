@@ -63,7 +63,7 @@ namespace CopeID.API.Migrations
                     b.ToTable("Photographs");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Speciman", b =>
+            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -99,7 +99,7 @@ namespace CopeID.API.Migrations
                     b.Navigation("Photograph");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Speciman", b =>
+            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
                 {
                     b.HasOne("CopeID.API.Models.Genus", "Genus")
                         .WithMany("Specimens")
