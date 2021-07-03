@@ -2,23 +2,21 @@
 
 namespace CopeID.API.Models
 {
-    public enum SpecimanGender
+    public enum SpecimenGender
     {
         Male = 0,
         Female = 1
     }
 
-    public class Speciman
+    public class Specimen : Entity
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
-
         public Guid GenusId { get; set; }
         public Genus Genus { get; set; }
 
         public Guid? PhotographId { get; set; }
         public Photograph Photograph { get; set; }
 
-        public SpecimanGender Gender { get; set; }
+        public SpecimenGender Gender { get; set; }
 
         public float Length { get; set; }
     }

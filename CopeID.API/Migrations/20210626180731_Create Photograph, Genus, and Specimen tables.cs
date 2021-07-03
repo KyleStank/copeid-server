@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace CopeID.API.Migrations
 {
-    public partial class CreatePhotographGenusandSpecimantables : Migration
+    public partial class CreatePhotographGenusandSpecimentables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CopeID.API.Migrations
 {
     [DbContext(typeof(CopeIdDbContext))]
-    [Migration("20210626180731_Create Photograph, Genus, and Speciman tables")]
-    partial class CreatePhotographGenusandSpecimantables
+    [Migration("20210626180731_Create Photograph, Genus, and Specimen tables")]
+    partial class CreatePhotographGenusandSpecimentables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -77,7 +77,7 @@ namespace CopeID.API.Migrations
                     b.ToTable("Photographs");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Speciman", b =>
+            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace CopeID.API.Migrations
                     b.Navigation("Photograph");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Speciman", b =>
+            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
                 {
                     b.HasOne("CopeID.API.Models.Genus", "Genus")
                         .WithMany("Specimens")
