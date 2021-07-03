@@ -6,6 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 
+using Newtonsoft.Json;
+
 using CopeID.API.Services;
 
 namespace CopeID.API
@@ -28,7 +30,9 @@ namespace CopeID.API
 
             services.AddCors();
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            );
 
             services.AddSwaggerGen(c =>
             {
