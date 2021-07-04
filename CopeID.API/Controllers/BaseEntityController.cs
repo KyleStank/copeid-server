@@ -31,7 +31,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
-            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPaselCase()).ToList();
+            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
             return Ok(entities);
         }
 
@@ -40,7 +40,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPaselCase());
+            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
             if (entity == null)
             {
                 return BadRequest("Invalid Entity ID provided.");
