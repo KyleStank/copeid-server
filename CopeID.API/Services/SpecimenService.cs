@@ -2,9 +2,9 @@
 
 namespace CopeID.API.Services
 {
-    public interface ISpecimenService : IBaseCrudService<Specimen> { }
+    public interface ISpecimenService : IBaseEntityService<Specimen> { }
 
-    public class SpecimenService : BaseCrudService<Specimen>, ISpecimenService
+    public class SpecimenService : BaseEntityService<Specimen>, ISpecimenService
     {
         public SpecimenService(CopeIdDbContext context) : base(context) { }
     }
