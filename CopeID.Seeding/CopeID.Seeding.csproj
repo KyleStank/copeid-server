@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-    <RootNamespace>CopeID</RootNamespace>
+    <RootNamespace>CopeID.Seeding</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
