@@ -9,7 +9,7 @@ namespace CopeID.API.Extensions
             string[] result = new string[strArr.Length];
             for (int i = 0; i < strArr.Length; i++)
             {
-                if (result[i] == null) continue;
+                if (strArr[i] == null) continue;
                 result[i] = strArr[i][0].ToString().ToUpper() + strArr[i].Substring(1);
             }
 

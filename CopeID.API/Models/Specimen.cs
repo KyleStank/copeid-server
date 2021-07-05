@@ -11,10 +11,10 @@ namespace CopeID.API.Models
     public class Specimen : Entity
     {
         public Guid GenusId { get; set; }
-        public Genus Genus { get; set; }
+        public virtual Genus Genus { get; set; }
 
         public Guid? PhotographId { get; set; }
-        public Photograph Photograph { get; set; }
+        public virtual Photograph Photograph { get; set; }
 
         public SpecimenGender Gender { get; set; }
 
