@@ -8,7 +8,7 @@ namespace CopeID.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class PhotographController : BaseCrudController<Photograph, PhotographController, IPhotographService>
+    public class PhotographController : BaseEntityController<Photograph, PhotographController, IPhotographService>
     {
         public PhotographController(ILogger<PhotographController> logger, IPhotographService photographService) : base(logger, photographService) { }
     }

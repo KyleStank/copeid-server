@@ -10,7 +10,7 @@ using CopeID.API.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseCrudService<TEntity> where TEntity : Entity
+    public interface IBaseEntityService<TEntity> where TEntity : Entity
     {
         IEnumerable<TEntity> GetAllEntities(string[] include = null);
         Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null);
@@ -23,14 +23,14 @@ namespace CopeID.API.Services
         Task<TEntity> DeleteEntity(Guid id);
     }
 
-    public abstract class BaseCrudService<TEntity> : IBaseCrudService<TEntity> where TEntity : Entity
+    public abstract class BaseEntityService<TEntity> : IBaseEntityService<TEntity> where TEntity : Entity
     {
         protected readonly CopeIdDbContext _context;
         protected readonly DbSet<TEntity> _set;
 
         protected static readonly IEnumerable<PropertyInfo> _entityProperties = typeof(TEntity).GetProperties().AsEnumerable();
 
-        public BaseCrudService(CopeIdDbContext context)
+        public BaseEntityService(CopeIdDbContext context)
         {
             _context = context;
             _set = _context.Set<TEntity>();
@@ -45,7 +45,7 @@ namespace CopeID.API.Services
         public async Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null) =>
             await FindEntityAsync(id, _set.AsNoTracking(), include);
 
-        private async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null) =>
+        protected async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null) =>
             await GenerateIncludeQuery(include, query.Where(x => x.Id == id)).FirstOrDefaultAsync();
 
         public async Task<TEntity> CreateEntity(TEntity model)
@@ -77,7 +77,7 @@ namespace CopeID.API.Services
             return result;
         }
 
-        private IQueryable<TEntity> GenerateIncludeQuery(string[] include, IQueryable<TEntity> existingQuery = null)
+        protected IQueryable<TEntity> GenerateIncludeQuery(string[] include, IQueryable<TEntity> existingQuery = null)
         {
             IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
             if (include != null)
@@ -89,7 +89,7 @@ namespace CopeID.API.Services
             return query;
         }
 
-        private async Task<int> SaveChanges()
+        protected async Task<int> SaveChanges()
         {
             return await _context.SaveChangesAsync();
         }

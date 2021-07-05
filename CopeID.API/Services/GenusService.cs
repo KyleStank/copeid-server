@@ -2,9 +2,9 @@
 
 namespace CopeID.API.Services
 {
-    public interface IGenusService : IBaseCrudService<Genus> { }
+    public interface IGenusService : IBaseEntityService<Genus> { }
 
-    public class GenusService : BaseCrudService<Genus>, IGenusService
+    public class GenusService : BaseEntityService<Genus>, IGenusService
     {
         public GenusService(CopeIdDbContext context) : base(context) { }
     }
