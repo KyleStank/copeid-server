@@ -21,7 +21,7 @@ namespace CopeID.API.Migrations
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CopeID.API.Models.Copepod", b =>
+            modelBuilder.Entity("CopeID.Models.Copepod", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -35,7 +35,7 @@ namespace CopeID.API.Migrations
                     b.ToTable("Copepods");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Genus", b =>
+            modelBuilder.Entity("CopeID.Models.Genus", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -54,7 +54,7 @@ namespace CopeID.API.Migrations
                     b.ToTable("Genuses");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Photograph", b =>
+            modelBuilder.Entity("CopeID.Models.Photograph", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -77,7 +77,7 @@ namespace CopeID.API.Migrations
                     b.ToTable("Photographs");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
+            modelBuilder.Entity("CopeID.Models.Specimen", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,24 +104,24 @@ namespace CopeID.API.Migrations
                     b.ToTable("Specimens");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Genus", b =>
+            modelBuilder.Entity("CopeID.Models.Genus", b =>
                 {
-                    b.HasOne("CopeID.API.Models.Photograph", "Photograph")
+                    b.HasOne("CopeID.Models.Photograph", "Photograph")
                         .WithMany()
                         .HasForeignKey("PhotographId");
 
                     b.Navigation("Photograph");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Specimen", b =>
+            modelBuilder.Entity("CopeID.Models.Specimen", b =>
                 {
-                    b.HasOne("CopeID.API.Models.Genus", "Genus")
+                    b.HasOne("CopeID.Models.Genus", "Genus")
                         .WithMany("Specimens")
                         .HasForeignKey("GenusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CopeID.API.Models.Photograph", "Photograph")
+                    b.HasOne("CopeID.Models.Photograph", "Photograph")
                         .WithMany()
                         .HasForeignKey("PhotographId");
 
@@ -130,7 +130,7 @@ namespace CopeID.API.Migrations
                     b.Navigation("Photograph");
                 });
 
-            modelBuilder.Entity("CopeID.API.Models.Genus", b =>
+            modelBuilder.Entity("CopeID.Models.Genus", b =>
                 {
                     b.Navigation("Specimens");
                 });

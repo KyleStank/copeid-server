@@ -21,7 +21,7 @@ namespace CopeID.API.Migrations
                 .HasAnnotation("ProductVersion", "5.0.7")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("CopeID.API.Models.Copepod.Copepod", b =>
+            modelBuilder.Entity("CopeID.Models.Copepod.Copepod", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
