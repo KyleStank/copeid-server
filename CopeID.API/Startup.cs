@@ -46,6 +46,7 @@ namespace CopeID.API
             services.AddScoped<IPhotographService, PhotographService>();
             services.AddScoped<IGenusService, GenusService>();
             services.AddScoped<ISpecimenService, SpecimenService>();
+            services.AddScoped<IContributorService, ContributorService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
