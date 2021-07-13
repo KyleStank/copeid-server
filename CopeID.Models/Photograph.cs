@@ -1,4 +1,4 @@
-﻿namespace CopeID.API.Models
+﻿namespace CopeID.Models
 {
     public class Photograph : Entity
     {

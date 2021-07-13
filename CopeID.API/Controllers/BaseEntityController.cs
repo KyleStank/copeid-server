@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
-using CopeID.API.Extensions;
-using CopeID.API.Models;
 using CopeID.API.Services;
+using CopeID.Extensions;
+using CopeID.Models;
 
 namespace CopeID.API.Controllers
 {

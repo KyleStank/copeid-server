@@ -16,4 +16,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../CopeID.Extensions/CopeID.Extensions.csproj" />
+    <ProjectReference Include="../CopeID.Models/CopeID.Models.csproj" />
+  </ItemGroup>
+
 </Project>

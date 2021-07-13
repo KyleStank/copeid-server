@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 using CopeID.API;
-using CopeID.API.Models;
+using CopeID.Models;
 
 namespace CopeID.Seeding
 {
