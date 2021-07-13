@@ -14,6 +14,8 @@ namespace CopeID.Context
 
         public DbSet<Contributor> Contributors { get; set; }
 
+        public DbSet<Definition> Definitions { get; set; }
+
         public CopeIdDbContext(DbContextOptions<CopeIdDbContext> options) : base(options) { }
     }
 }
