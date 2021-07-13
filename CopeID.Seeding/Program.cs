@@ -21,9 +21,11 @@ namespace CopeID.Seeding
         private static readonly string _genusDataFile = _jsonDataDirectory + "GenusData.json";
         private static readonly string _specimenDataFile = _jsonDataDirectory + "SpecimenData.json";
         private static readonly string _contributorsDataFile = _jsonDataDirectory + "ContributorsData.json";
+        private static readonly string _definitionsDataFile = _jsonDataDirectory + "DefinitionsData.json";
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("=== Seed Database ===");
             Console.WriteLine("Reading seeding data...");
             Console.WriteLine("\n");
 
@@ -58,6 +60,9 @@ namespace CopeID.Seeding
             string contributorsJson = await ReadTextFile(_contributorsDataFile);
             Contributor[] contributorsData = JsonConvert.DeserializeObject<Contributor[]>(contributorsJson);
 
+            string definitionsJson = await ReadTextFile(_definitionsDataFile);
+            Definition[] definitionsData = JsonConvert.DeserializeObject<Definition[]>(definitionsJson);
+
             Console.WriteLine("Creating DB Context...");
 
             // Connect to DB.
@@ -70,27 +75,70 @@ namespace CopeID.Seeding
                 context.Database.EnsureCreated();
                 Console.WriteLine("DB context created!");
                 Console.WriteLine("\n");
-                Console.WriteLine("=== Seeding... ===");
+                Console.WriteLine("Begin seeding...");
 
-                Console.WriteLine(" - Photographs...");
-                await context.Set<Photograph>().AddRangeAsync(photographData);
+                DbSet<Photograph> photographSet = context.Set<Photograph>();
+                if (photographSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Photographs...");
+                    await photographSet.AddRangeAsync(photographData);
+                }
+                else
+                {
+                    Console.WriteLine("- Photographs already seeded");
+                }
 
-                Console.WriteLine(" - Genuses...");
-                await context.Set<Genus>().AddRangeAsync(genusData);
+                DbSet<Genus> genusSet = context.Set<Genus>();
+                if (genusSet.Count() == 0) 
+                {
+                    Console.WriteLine("- Seeding Genuses...");
+                    await genusSet.AddRangeAsync(genusData);
+                }
+                else
+                {
+                    Console.WriteLine("- Genuses already seeded");
+                }
 
-                Console.WriteLine(" - Specimens...");
-                await context.Set<Specimen>().AddRangeAsync(specimenData);
+                DbSet<Specimen> specimenSet = context.Set<Specimen>();
+                if (specimenSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Specimens...");
+                    await specimenSet.AddRangeAsync(specimenData);
+                }
+                else
+                {
+                    Console.WriteLine("- Specimens already seeded");
+                }
 
-                Console.WriteLine(" - Contributors...");
-                await context.Set<Contributor>().AddRangeAsync(contributorsData);
+                DbSet<Contributor> contributorSet = context.Set<Contributor>();
+                if (contributorSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Contributors...");
+                    await contributorSet.AddRangeAsync(contributorsData);
+                }
+                else
+                {
+                    Console.WriteLine("- Contributors already seeded");
+                }
 
-                Console.WriteLine(" === Complete ===");
+                DbSet<Definition> definitionSet = context.Set<Definition>();
+                if (definitionSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Definitions...");
+                    await definitionSet.AddRangeAsync(definitionsData);
+                }
+                else
+                {
+                    Console.WriteLine("- Definitions already seeded");
+                }
+
+                Console.WriteLine("Saving DB...");
 
                 context.SaveChanges();
             }
 
             Console.WriteLine("\n");
-            Console.WriteLine("Finishing seeding DB!");
+            Console.WriteLine("=== Completed seeding ===");
         }
 
         static async Task<string> ReadTextFile(string file)
