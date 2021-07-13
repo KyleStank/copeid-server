@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 using CopeID.API.Services;
+using CopeID.Context;
 
 namespace CopeID.API
 {
@@ -25,7 +26,10 @@ namespace CopeID.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<CopeIdDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection"),
+                    x => x.MigrationsAssembly("CopeID.Context")
+                )
             );
 
             services.AddCors();

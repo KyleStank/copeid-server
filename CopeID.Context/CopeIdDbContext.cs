@@ -2,7 +2,7 @@
 
 using CopeID.Models;
 
-namespace CopeID.API
+namespace CopeID.Context
 {
     public class CopeIdDbContext : DbContext
     {
@@ -11,6 +11,8 @@ namespace CopeID.API
         public DbSet<Photograph> Photographs { get; set; }
 
         public DbSet<Specimen> Specimens { get; set; }
+
+        public DbSet<Contributor> Contributors { get; set; }
 
         public CopeIdDbContext(DbContextOptions<CopeIdDbContext> options) : base(options) { }
     }

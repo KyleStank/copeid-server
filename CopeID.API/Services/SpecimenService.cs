@@ -1,4 +1,5 @@
-﻿using CopeID.Models;
+﻿using CopeID.Context;
+using CopeID.Models;
 
 namespace CopeID.API.Services
 {
