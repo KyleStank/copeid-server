@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CopeID.API.Models
+namespace CopeID.Models
 {
     public class Genus : Entity
     {

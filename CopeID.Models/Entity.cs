@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CopeID.API.Models
+namespace CopeID.Models
 {
     public class Entity
     {

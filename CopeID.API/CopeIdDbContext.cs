@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using CopeID.API.Models;
+using CopeID.Models;
 
 namespace CopeID.API
 {
