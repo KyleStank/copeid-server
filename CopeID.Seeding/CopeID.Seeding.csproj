@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../CopeID.API/CopeID.API.csproj" />
+    <ProjectReference Include="../CopeID.Context/CopeID.Context.csproj" />
     <ProjectReference Include="../CopeID.Models/CopeID.Models.csproj" />
   </ItemGroup>
 

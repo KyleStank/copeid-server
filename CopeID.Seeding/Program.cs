@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json;
 
-using CopeID.API;
+using CopeID.Context;
 using CopeID.Models;
 
 namespace CopeID.Seeding
@@ -20,9 +20,15 @@ namespace CopeID.Seeding
         private static readonly string _photographDataFile = _jsonDataDirectory + "PhotographData.json";
         private static readonly string _genusDataFile = _jsonDataDirectory + "GenusData.json";
         private static readonly string _specimenDataFile = _jsonDataDirectory + "SpecimenData.json";
+        private static readonly string _contributorsDataFile = _jsonDataDirectory + "ContributorsData.json";
+        private static readonly string _definitionsDataFile = _jsonDataDirectory + "DefinitionsData.json";
 
         static async Task Main(string[] args)
         {
+            Console.WriteLine("=== Seed Database ===");
+            Console.WriteLine("Reading seeding data...");
+            Console.WriteLine("\n");
+
             // Read JSON data.
             string photographJson = await ReadTextFile(_photographDataFile);
             Photograph[] photographData = JsonConvert.DeserializeObject<Photograph[]>(photographJson);
@@ -51,6 +57,14 @@ namespace CopeID.Seeding
                 specimenData[i].PhotographId = photo.Id;
             }
 
+            string contributorsJson = await ReadTextFile(_contributorsDataFile);
+            Contributor[] contributorsData = JsonConvert.DeserializeObject<Contributor[]>(contributorsJson);
+
+            string definitionsJson = await ReadTextFile(_definitionsDataFile);
+            Definition[] definitionsData = JsonConvert.DeserializeObject<Definition[]>(definitionsJson);
+
+            Console.WriteLine("Creating DB Context...");
+
             // Connect to DB.
             DbContextOptions<CopeIdDbContext> options = new DbContextOptionsBuilder<CopeIdDbContext>()
                 .UseSqlServer("Server=localhost;Database=CopeId;User=sa;Password=Edison15;")
@@ -59,13 +73,72 @@ namespace CopeID.Seeding
             using (CopeIdDbContext context = new CopeIdDbContext(options))
             {
                 context.Database.EnsureCreated();
+                Console.WriteLine("DB context created!");
+                Console.WriteLine("\n");
+                Console.WriteLine("Begin seeding...");
 
-                await context.Set<Photograph>().AddRangeAsync(photographData);
-                await context.Set<Genus>().AddRangeAsync(genusData);
-                await context.Set<Specimen>().AddRangeAsync(specimenData);
+                DbSet<Photograph> photographSet = context.Set<Photograph>();
+                if (photographSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Photographs...");
+                    await photographSet.AddRangeAsync(photographData);
+                }
+                else
+                {
+                    Console.WriteLine("- Photographs already seeded");
+                }
+
+                DbSet<Genus> genusSet = context.Set<Genus>();
+                if (genusSet.Count() == 0) 
+                {
+                    Console.WriteLine("- Seeding Genuses...");
+                    await genusSet.AddRangeAsync(genusData);
+                }
+                else
+                {
+                    Console.WriteLine("- Genuses already seeded");
+                }
+
+                DbSet<Specimen> specimenSet = context.Set<Specimen>();
+                if (specimenSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Specimens...");
+                    await specimenSet.AddRangeAsync(specimenData);
+                }
+                else
+                {
+                    Console.WriteLine("- Specimens already seeded");
+                }
+
+                DbSet<Contributor> contributorSet = context.Set<Contributor>();
+                if (contributorSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Contributors...");
+                    await contributorSet.AddRangeAsync(contributorsData);
+                }
+                else
+                {
+                    Console.WriteLine("- Contributors already seeded");
+                }
+
+                DbSet<Definition> definitionSet = context.Set<Definition>();
+                if (definitionSet.Count() == 0)
+                {
+                    Console.WriteLine("- Seeding Definitions...");
+                    await definitionSet.AddRangeAsync(definitionsData);
+                }
+                else
+                {
+                    Console.WriteLine("- Definitions already seeded");
+                }
+
+                Console.WriteLine("Saving DB...");
 
                 context.SaveChanges();
             }
+
+            Console.WriteLine("\n");
+            Console.WriteLine("=== Completed seeding ===");
         }
 
         static async Task<string> ReadTextFile(string file)

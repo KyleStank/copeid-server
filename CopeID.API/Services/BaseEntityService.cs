@@ -6,6 +6,7 @@ using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.Context;
 using CopeID.Models;
 
 namespace CopeID.API.Services
