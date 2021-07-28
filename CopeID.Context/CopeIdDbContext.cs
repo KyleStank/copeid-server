@@ -16,6 +16,8 @@ namespace CopeID.Context
 
         public DbSet<Definition> Definitions { get; set; }
 
+        public DbSet<Reference> References { get; set; }
+
         public CopeIdDbContext(DbContextOptions<CopeIdDbContext> options) : base(options) { }
     }
 }
