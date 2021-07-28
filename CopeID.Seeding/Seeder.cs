@@ -1,166 +1,119 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
-
-using Newtonsoft.Json;
 
 using CopeID.Context;
 using CopeID.Models;
 
 namespace CopeID.Seeding
 {
+    public interface ISeeder
+    {
+        Task Seed(string jsonContents);
+    }
+
     public class Seeder
     {
-        private static readonly string _jsonDataDirectory = "Data/";
+        private static readonly string _dataDirectory = "Data/";
+        private static readonly string _dataExtension = "json";
 
-        private static readonly string _photographDataFile = _jsonDataDirectory + "PhotographData.json";
-        private static readonly string _genusDataFile = _jsonDataDirectory + "GenusData.json";
-        private static readonly string _specimenDataFile = _jsonDataDirectory + "SpecimenData.json";
-        private static readonly string _contributorsDataFile = _jsonDataDirectory + "ContributorsData.json";
-        private static readonly string _definitionsDataFile = _jsonDataDirectory + "DefinitionsData.json";
-        private static readonly string _referencesDataFile = _jsonDataDirectory + "ReferencesData.json";
+        private static IEnumerable<Type> GetAssemblyTypes<T>(Func<Type, bool> predicate = null)
+        {
+            return Assembly.GetAssembly(typeof(T)).GetTypes().Where(t => predicate == null || predicate.Invoke(t)).AsEnumerable();
+        }
+
+        private static IEnumerable<Type> GetClassTypes<T>() where T : class
+        {
+            return GetAssemblyTypes<T>().Where(t => !t.IsAbstract && t.IsClass && t.IsSubclassOf(typeof(T)));
+        }
+
+        private static IEnumerable<Type> GetInterfaceTypes<T>()
+        {
+            return GetAssemblyTypes<T>().Where(t => !t.IsAbstract && t.IsClass && t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(T)));
+        }
 
         public async Task Seed()
         {
-            Console.WriteLine("=== Seed Database ===");
-            Console.WriteLine("Reading seeding data...");
+            Console.WriteLine("===== BEGIN SEEDING =====");
             Console.WriteLine("\n");
-
-            // Read JSON data.
-            string photographJson = await ReadTextFile(_photographDataFile);
-            Photograph[] photographData = JsonConvert.DeserializeObject<Photograph[]>(photographJson);
-
-            string genusJson = await ReadTextFile(_genusDataFile);
-            Genus[] genusData = JsonConvert.DeserializeObject<Genus[]>(genusJson);
-            for (int i = 0; i < genusData.Length; i++)
-            {
-                Random rand = new Random();
-
-                Photograph photo = photographData[rand.Next(0, photographData.Length)];
-
-                genusData[i].PhotographId = photo.Id;
-            }
-
-            string specimenJson = await ReadTextFile(_specimenDataFile);
-            Specimen[] specimenData = JsonConvert.DeserializeObject<Specimen[]>(specimenJson);
-            for (int i = 0; i < specimenData.Length; i++)
-            {
-                Random rand = new Random();
-
-                Genus genus = genusData[rand.Next(0, genusData.Length)];
-                Photograph photo = photographData[rand.Next(0, photographData.Length)];
-
-                specimenData[i].GenusId = genus.Id;
-                specimenData[i].PhotographId = photo.Id;
-            }
-
-            string contributorsJson = await ReadTextFile(_contributorsDataFile);
-            Contributor[] contributorsData = JsonConvert.DeserializeObject<Contributor[]>(contributorsJson);
-
-            string definitionsJson = await ReadTextFile(_definitionsDataFile);
-            Definition[] definitionsData = JsonConvert.DeserializeObject<Definition[]>(definitionsJson);
-
-            string referencesJson = await ReadTextFile(_referencesDataFile);
-            Reference[] referencesData = JsonConvert.DeserializeObject<Reference[]>(referencesJson);
-
-            Console.WriteLine("Creating DB Context...");
 
             // Connect to DB.
             DbContextOptions<CopeIdDbContext> options = new DbContextOptionsBuilder<CopeIdDbContext>()
                 .UseSqlServer("Server=localhost;Database=CopeId;User=sa;Password=Edison15;")
                 .Options;
 
+            Console.WriteLine("=== Initialize ===");
+            Console.WriteLine("== Connection ==");
+            Console.WriteLine("Connecting to SQL server...");
             using (CopeIdDbContext context = new CopeIdDbContext(options))
             {
-                context.Database.EnsureCreated();
-                Console.WriteLine("DB context created!");
+                Console.WriteLine("Connected to SQL server.");
                 Console.WriteLine("\n");
-                Console.WriteLine("Begin seeding...");
 
-                DbSet<Photograph> photographSet = context.Set<Photograph>();
-                if (photographSet.Count() == 0)
+                Console.WriteLine("== Migrations ==");
+                if ((await context.Database.GetPendingMigrationsAsync()).Count() > 0)
                 {
-                    Console.WriteLine("- Seeding Photographs...");
-                    await photographSet.AddRangeAsync(photographData);
+                    Console.WriteLine("Applying migrations...");
+                    await context.Database.MigrateAsync();
+                    Console.WriteLine("Migrations applied.");
                 }
                 else
                 {
-                    Console.WriteLine("- Photographs already seeded");
+                    Console.WriteLine("No migrations to apply");
+                }
+                Console.WriteLine("\n");
+
+                Console.WriteLine("=== Seeding ===");
+                Console.WriteLine("Finding all seeders...");
+                IEnumerable<Type> seederTypes = GetInterfaceTypes<ISeeder>();
+
+                Console.WriteLine("Finding all models...");
+                IEnumerable<Type> entityTypes = GetClassTypes<Entity>();
+                Console.WriteLine("\n");
+                foreach (string entityType in entityTypes.Select(t => t.Name))
+                {
+                    Console.WriteLine($"== {entityType} ==");
+                    Type seederType = seederTypes.FirstOrDefault(t => t.Name.Contains(entityType));
+                    if (seederType != null)
+                    {
+                        Console.WriteLine($"Found seeder [{seederType.Name}] for Entity [{entityType}]");
+
+                        string path = $"{Path.Combine(_dataDirectory, entityType)}.{_dataExtension}";
+                        Console.WriteLine($"Searching for {path}...");
+                        if (File.Exists(path))
+                        {
+                            Console.WriteLine($"{path} found! Creating instance of seeder [{seederType.Name}]...");
+                            ISeeder seederInstance = Activator.CreateInstance(seederType, context) as ISeeder;
+                            Console.WriteLine("Instance created, seeding...");
+                            await seederInstance.Seed(File.ReadAllText(path));
+                            Console.WriteLine($"Seeding completed for Entity [{entityType}]");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"{path} not found! Skipping seeding for Entity [{entityType}]...");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"No seeder exists for Entity [{entityType}], skipping...");
+                    }
+
+                    Console.WriteLine("\n");
                 }
 
-                DbSet<Genus> genusSet = context.Set<Genus>();
-                if (genusSet.Count() == 0)
-                {
-                    Console.WriteLine("- Seeding Genuses...");
-                    await genusSet.AddRangeAsync(genusData);
-                }
-                else
-                {
-                    Console.WriteLine("- Genuses already seeded");
-                }
+                Console.WriteLine("=== Finalize ===");
+                Console.WriteLine("Saving database changes...");
+                await context.SaveChangesAsync();
+                Console.WriteLine("Saved database changes!");
 
-                DbSet<Specimen> specimenSet = context.Set<Specimen>();
-                if (specimenSet.Count() == 0)
-                {
-                    Console.WriteLine("- Seeding Specimens...");
-                    await specimenSet.AddRangeAsync(specimenData);
-                }
-                else
-                {
-                    Console.WriteLine("- Specimens already seeded");
-                }
-
-                DbSet<Contributor> contributorSet = context.Set<Contributor>();
-                if (contributorSet.Count() == 0)
-                {
-                    Console.WriteLine("- Seeding Contributors...");
-                    await contributorSet.AddRangeAsync(contributorsData);
-                }
-                else
-                {
-                    Console.WriteLine("- Contributors already seeded");
-                }
-
-                DbSet<Definition> definitionSet = context.Set<Definition>();
-                if (definitionSet.Count() == 0)
-                {
-                    Console.WriteLine("- Seeding Definitions...");
-                    await definitionSet.AddRangeAsync(definitionsData);
-                }
-                else
-                {
-                    Console.WriteLine("- Definitions already seeded");
-                }
-
-                DbSet<Reference> referenceSet = context.Set<Reference>();
-                if (referenceSet.Count() == 0)
-                {
-                    Console.WriteLine("- Seeding References...");
-                    await referenceSet.AddRangeAsync(referencesData);
-                }
-                else
-                {
-                    Console.WriteLine("- References already seeded");
-                }
-
-                Console.WriteLine("Saving DB...");
-
-                context.SaveChanges();
+                Console.WriteLine("\n");
+                Console.WriteLine("===== SEEDING COMPLETE =====");
             }
-
-            Console.WriteLine("\n");
-            Console.WriteLine("=== Completed seeding ===");
-        }
-
-        private async Task<string> ReadTextFile(string file)
-        {
-            string contents = "";
-            using (StreamReader r = new StreamReader(file))
-                contents += await r.ReadToEndAsync();
-            return contents;
         }
     }
 }
