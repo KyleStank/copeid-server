@@ -13,7 +13,7 @@ using CopeID.Models;
 
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseEntityController<TEntity, TLogger, TService> : ControllerBase
+    public abstract class BaseEntityController<TEntity, TLogger, TService> : BaseApiController
         where TEntity : Entity
         where TLogger : ControllerBase
         where TService : IBaseEntityService<TEntity>
@@ -32,6 +32,7 @@ namespace CopeID.API.Controllers
         public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
             List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
+
             return Ok(entities);
         }
 
