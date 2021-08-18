@@ -13,7 +13,7 @@ using CopeID.Models;
 
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseEntityController<TEntity, TLogger, TService> : ControllerBase
+    public abstract class BaseEntityController<TEntity, TLogger, TService> : BaseApiController
         where TEntity : Entity
         where TLogger : ControllerBase
         where TService : IBaseEntityService<TEntity>
@@ -32,6 +32,7 @@ namespace CopeID.API.Controllers
         public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
             List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
+
             return Ok(entities);
         }
 
@@ -43,7 +44,7 @@ namespace CopeID.API.Controllers
             TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
             if (entity == null)
             {
-                return BadRequest("Invalid Entity ID provided.");
+                return CreateBadRequest("Invalid Entity ID provided.");
             }
 
             return Ok(entity);
@@ -57,13 +58,13 @@ namespace CopeID.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid Entity model provided.");
+                return CreateBadRequest("Invalid Entity model provided.");
             }
 
             TEntity entity = await _entityService.CreateEntity(model);
             if (entity == null)
             {
-                return BadRequest("Unable to create Entity.");
+                return CreateBadRequest("Unable to create Entity.");
             }
 
             return CreatedAtAction(nameof(CreateEntity), entity);
@@ -76,13 +77,13 @@ namespace CopeID.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid Entity model provided.");
+                return CreateBadRequest("Invalid Entity model provided.");
             }
 
             TEntity entity = await _entityService.UpdateEntity(model);
             if (entity == null)
             {
-                return BadRequest("Unable to update Entity.");
+                return CreateBadRequest("Unable to update Entity.");
             }
 
             return Ok(entity);
@@ -95,13 +96,13 @@ namespace CopeID.API.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid Entity model provided.");
+                return CreateBadRequest("Invalid Entity model provided.");
             }
 
             TEntity entity = await _entityService.DeleteEntity(id);
             if (entity == null)
             {
-                return BadRequest("Unable to delete Entity.");
+                return CreateBadRequest("Unable to delete Entity.");
             }
 
             return NoContent();
