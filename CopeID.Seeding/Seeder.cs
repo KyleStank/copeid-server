@@ -37,7 +37,7 @@ namespace CopeID.Seeding
             return GetAssemblyTypes<T>().Where(t => !t.IsAbstract && t.IsClass && t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(T)));
         }
 
-        public async Task Seed()
+        public async Task Seed(string dataPath = null)
         {
             Console.WriteLine("===== BEGIN SEEDING =====");
             Console.WriteLine("\n");
@@ -83,7 +83,7 @@ namespace CopeID.Seeding
                     {
                         Console.WriteLine($"Found seeder [{seederType.Name}] for Entity [{entityType}]");
 
-                        string path = $"{Path.Combine(_dataDirectory, entityType)}.{_dataExtension}";
+                        string path = $"{Path.Combine(dataPath ?? _dataDirectory, entityType)}.{_dataExtension}";
                         Console.WriteLine($"Searching for {path}...");
                         if (File.Exists(path))
                         {

@@ -1,8 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,6 +15,7 @@ using Newtonsoft.Json;
 
 using CopeID.API.Services;
 using CopeID.Context;
+using CopeID.Seeding;
 
 namespace CopeID.API
 {
@@ -53,7 +59,7 @@ namespace CopeID.API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CopeIdDbContext context, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
@@ -70,6 +76,24 @@ namespace CopeID.API
             else
             {
                 app.UseCors();
+            }
+
+            try
+            {
+                context.Database.Migrate();
+
+                Seeder seeder = new Seeder();
+                List<Task> tasks = new List<Task>
+                {
+                    seeder.Seed(env.IsDevelopment() ? "../CopeID.Seeding/Data/" : null)
+                };
+                Task.WhenAll(tasks).Wait();
+            }
+            catch (Exception exception)
+            {
+                EventId initData = new EventId(101, "Error while creating database");
+                logger.LogCritical(initData, exception, initData.Name);
+                throw new Exception(initData.Name, exception);
             }
 
             app.UseHttpsRedirection();
