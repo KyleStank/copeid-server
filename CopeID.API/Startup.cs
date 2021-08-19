@@ -85,7 +85,7 @@ namespace CopeID.API
                 Seeder seeder = new Seeder();
                 List<Task> tasks = new List<Task>
                 {
-                    seeder.Seed(env.IsDevelopment() ? "../CopeID.Seeding/Data/" : null)
+                    seeder.Seed(context, env.IsDevelopment() ? "../CopeID.Seeding/Data/" : null)
                 };
                 Task.WhenAll(tasks).Wait();
             }

@@ -37,83 +37,80 @@ namespace CopeID.Seeding
             return GetAssemblyTypes<T>().Where(t => !t.IsAbstract && t.IsClass && t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(T)));
         }
 
-        public async Task Seed(string dataPath = null)
+        public async Task Seed(CopeIdDbContext context, string dataPath = null)
         {
             Console.WriteLine("===== BEGIN SEEDING =====");
             Console.WriteLine("\n");
 
             // Connect to DB.
-            DbContextOptions<CopeIdDbContext> options = new DbContextOptionsBuilder<CopeIdDbContext>()
-                .UseSqlServer("Server=localhost;Database=CopeId;User=sa;Password=Edison15;")
-                .Options;
-
             Console.WriteLine("=== Initialize ===");
             Console.WriteLine("== Connection ==");
             Console.WriteLine("Connecting to SQL server...");
-            using (CopeIdDbContext context = new CopeIdDbContext(options))
+
+            Console.WriteLine("Connected to SQL server.");
+            Console.WriteLine("\n");
+
+            // Run migrations.
+            Console.WriteLine("== Migrations ==");
+            if ((await context.Database.GetPendingMigrationsAsync()).Count() > 0)
             {
-                Console.WriteLine("Connected to SQL server.");
-                Console.WriteLine("\n");
+                Console.WriteLine("Applying migrations...");
+                await context.Database.MigrateAsync();
+                Console.WriteLine("Migrations applied.");
+            }
+            else
+            {
+                Console.WriteLine("No migrations to apply");
+            }
+            Console.WriteLine("\n");
 
-                Console.WriteLine("== Migrations ==");
-                if ((await context.Database.GetPendingMigrationsAsync()).Count() > 0)
-                {
-                    Console.WriteLine("Applying migrations...");
-                    await context.Database.MigrateAsync();
-                    Console.WriteLine("Migrations applied.");
-                }
-                else
-                {
-                    Console.WriteLine("No migrations to apply");
-                }
-                Console.WriteLine("\n");
+            // Start seeding.
+            Console.WriteLine("=== Seeding ===");
+            Console.WriteLine("Finding all seeders...");
+            IEnumerable<Type> seederTypes = GetInterfaceTypes<ISeeder>();
 
-                Console.WriteLine("=== Seeding ===");
-                Console.WriteLine("Finding all seeders...");
-                IEnumerable<Type> seederTypes = GetInterfaceTypes<ISeeder>();
-
-                Console.WriteLine("Finding all models...");
-                IEnumerable<Type> entityTypes = GetClassTypes<Entity>();
-                Console.WriteLine("\n");
-                foreach (string entityType in entityTypes.Select(t => t.Name))
+            Console.WriteLine("Finding all models...");
+            IEnumerable<Type> entityTypes = GetClassTypes<Entity>();
+            Console.WriteLine("\n");
+            foreach (string entityType in entityTypes.Select(t => t.Name))
+            {
+                Console.WriteLine($"== {entityType} ==");
+                Type seederType = seederTypes.FirstOrDefault(t => t.Name.Contains(entityType));
+                if (seederType != null)
                 {
-                    Console.WriteLine($"== {entityType} ==");
-                    Type seederType = seederTypes.FirstOrDefault(t => t.Name.Contains(entityType));
-                    if (seederType != null)
+                    Console.WriteLine($"Found seeder [{seederType.Name}] for Entity [{entityType}]");
+
+                    string path = $"{Path.Combine(dataPath ?? _dataDirectory, entityType)}.{_dataExtension}";
+                    Console.WriteLine($"Searching for {path}...");
+                    if (File.Exists(path))
                     {
-                        Console.WriteLine($"Found seeder [{seederType.Name}] for Entity [{entityType}]");
-
-                        string path = $"{Path.Combine(dataPath ?? _dataDirectory, entityType)}.{_dataExtension}";
-                        Console.WriteLine($"Searching for {path}...");
-                        if (File.Exists(path))
-                        {
-                            Console.WriteLine($"{path} found! Creating instance of seeder [{seederType.Name}]...");
-                            ISeeder seederInstance = Activator.CreateInstance(seederType, context) as ISeeder;
-                            Console.WriteLine("Instance created, seeding...");
-                            await seederInstance.Seed(File.ReadAllText(path));
-                            Console.WriteLine($"Seeding completed for Entity [{entityType}]");
-                        }
-                        else
-                        {
-                            Console.WriteLine($"{path} not found! Skipping seeding for Entity [{entityType}]...");
-                        }
+                        Console.WriteLine($"{path} found! Creating instance of seeder [{seederType.Name}]...");
+                        ISeeder seederInstance = Activator.CreateInstance(seederType, context) as ISeeder;
+                        Console.WriteLine("Instance created, seeding...");
+                        await seederInstance.Seed(File.ReadAllText(path));
+                        Console.WriteLine($"Seeding completed for Entity [{entityType}]");
                     }
                     else
                     {
-                        Console.WriteLine($"No seeder exists for Entity [{entityType}], skipping...");
+                        Console.WriteLine($"{path} not found! Skipping seeding for Entity [{entityType}]...");
                     }
-
-                    Console.WriteLine("\n");
+                }
+                else
+                {
+                    Console.WriteLine($"No seeder exists for Entity [{entityType}], skipping...");
                 }
 
-                Console.WriteLine("=== Finalize ===");
-                Console.WriteLine("Saving database changes...");
-                await context.SaveChangesAsync();
-                Console.WriteLine("Saved database changes!");
-
                 Console.WriteLine("\n");
-                Console.WriteLine("===== SEEDING COMPLETE =====");
             }
+
+            // Save changes.
+            Console.WriteLine("=== Finalize ===");
+            Console.WriteLine("Saving database changes...");
+            await context.SaveChangesAsync();
+            Console.WriteLine("Saved database changes!");
+
+            Console.WriteLine("\n");
+            Console.WriteLine("===== SEEDING COMPLETE =====");
         }
     }
 }
