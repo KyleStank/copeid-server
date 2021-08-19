@@ -75,7 +75,12 @@ namespace CopeID.API
             }
             else
             {
-                app.UseCors();
+                // TODO: Remove when application is actually ready for production.
+                app.UseCors(policy => policy
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyOrigin()
+                );
             }
 
             try
