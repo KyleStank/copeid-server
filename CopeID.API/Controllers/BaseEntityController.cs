@@ -48,7 +48,7 @@ namespace CopeID.API.Controllers
                 TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
                 return Ok(entity);
             }
-            catch (EntityNotFoundException notFoundException)
+            catch (EntityNotFoundException<TEntity> notFoundException)
             {
                 return CreateNotFoundRequest(notFoundException.Message);
             }
@@ -67,7 +67,7 @@ namespace CopeID.API.Controllers
                 TEntity entity = await _entityService.CreateEntity(model);
                 return CreatedAtAction(nameof(CreateEntity), entity);
             }
-            catch (EntityNotCreatedException notCreatedException)
+            catch (EntityNotCreatedException<TEntity> notCreatedException)
             {
                 return CreateBadRequest(notCreatedException.Message);
             }
@@ -86,11 +86,11 @@ namespace CopeID.API.Controllers
                 TEntity entity = await _entityService.UpdateEntity(model);
                 return Ok(entity);
             }
-            catch (EntityNotFoundException notFoundException)
+            catch (EntityNotFoundException<TEntity> notFoundException)
             {
                 return CreateNotFoundRequest(notFoundException.Message);
             }
-            catch (EntityNotUpdatedException notUpdatedException)
+            catch (EntityNotUpdatedException<TEntity> notUpdatedException)
             {
                 return CreateBadRequest(notUpdatedException.Message);
             }
@@ -109,11 +109,11 @@ namespace CopeID.API.Controllers
                 TEntity entity = await _entityService.DeleteEntity(id);
                 return CreateNoContentRequest();
             }
-            catch (EntityNotFoundException notFoundException)
+            catch (EntityNotFoundException<TEntity> notFoundException)
             {
                 return CreateNotFoundRequest(notFoundException.Message);
             }
-            catch (EntityNotDeletedException notDeletedException)
+            catch (EntityNotDeletedException<TEntity> notDeletedException)
             {
                 return CreateBadRequest(notDeletedException.Message);
             }

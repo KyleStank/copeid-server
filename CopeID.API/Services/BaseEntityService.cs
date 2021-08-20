@@ -34,8 +34,6 @@ namespace CopeID.API.Services
         protected static readonly string _entityName = _entityType.Name;
         protected static readonly IEnumerable<PropertyInfo> _entityProperties = _entityType.GetProperties().AsEnumerable();
 
-        protected static readonly string _notFoundError = $"{_entityName} could not be found";
-
         public BaseEntityService(CopeIdDbContext context)
         {
             _context = context;
@@ -54,7 +52,7 @@ namespace CopeID.API.Services
         protected async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null)
         {
             TEntity result = await GenerateIncludeQuery(include, query.Where(x => x.Id == id)).FirstOrDefaultAsync();
-            if (result == null) throw new EntityNotFoundException(_notFoundError);
+            if (result == null) throw new EntityNotFoundException<TEntity>();
 
             return result;
         }
@@ -63,18 +61,18 @@ namespace CopeID.API.Services
         {
             TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null) await SaveChanges();
-            else throw new EntityNotCreatedException($"{_entityName} could not be created");
+            else throw new EntityNotCreatedException<TEntity>();
 
             return result;
         }
 
         public async Task<TEntity> UpdateEntity(TEntity model)
         {
-            if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException(_notFoundError);
+            if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException<TEntity>();
 
             TEntity result = _set.Update(model)?.Entity ?? null;
             if (result != null) await SaveChanges();
-            else throw new EntityNotUpdatedException($"{_entityName} could not be updated");
+            else throw new EntityNotUpdatedException<TEntity>();
 
             return result;
         }
@@ -82,11 +80,11 @@ namespace CopeID.API.Services
         public async Task<TEntity> DeleteEntity(Guid id)
         {
             TEntity model = await GetEntityUntrackedAsync(id);
-            if (model == null) throw new EntityNotFoundException(_notFoundError);
+            if (model == null) throw new EntityNotFoundException<TEntity>();
 
             TEntity result = _context.Remove(model)?.Entity ?? null;
             if (result != null) await SaveChanges();
-            else throw new EntityNotDeletedException($"{_entityName} could not be deleted");
+            else throw new EntityNotDeletedException<TEntity>();
 
             return result;
         }
