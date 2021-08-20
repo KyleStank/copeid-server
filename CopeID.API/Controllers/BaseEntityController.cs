@@ -41,7 +41,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
@@ -50,7 +50,7 @@ namespace CopeID.API.Controllers
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
             {
-                return CreateNotFoundRequest(notFoundException.Message);
+                return CreateNotFoundResponse(notFoundException.Message);
             }
         }
 
@@ -60,7 +60,7 @@ namespace CopeID.API.Controllers
 
         public virtual async Task<IActionResult> CreateEntity([FromBody] TEntity model)
         {
-            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
@@ -69,7 +69,7 @@ namespace CopeID.API.Controllers
             }
             catch (EntityNotCreatedException<TEntity> notCreatedException)
             {
-                return CreateBadRequest(notCreatedException.Message);
+                return CreateBadRequestResponse(notCreatedException.Message);
             }
         }
 
@@ -79,7 +79,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> UpdateEntity([FromBody] TEntity model)
         {
-            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
@@ -88,11 +88,11 @@ namespace CopeID.API.Controllers
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
             {
-                return CreateNotFoundRequest(notFoundException.Message);
+                return CreateNotFoundResponse(notFoundException.Message);
             }
             catch (EntityNotUpdatedException<TEntity> notUpdatedException)
             {
-                return CreateBadRequest(notUpdatedException.Message);
+                return CreateBadRequestResponse(notUpdatedException.Message);
             }
         }
 
@@ -102,20 +102,20 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> DeleteEntity(Guid id)
         {
-            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
                 TEntity entity = await _entityService.DeleteEntity(id);
-                return CreateNoContentRequest();
+                return CreateNoContentResponse();
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
             {
-                return CreateNotFoundRequest(notFoundException.Message);
+                return CreateNotFoundResponse(notFoundException.Message);
             }
             catch (EntityNotDeletedException<TEntity> notDeletedException)
             {
-                return CreateBadRequest(notDeletedException.Message);
+                return CreateBadRequestResponse(notDeletedException.Message);
             }
         }
     }
