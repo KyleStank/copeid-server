@@ -6,14 +6,19 @@ using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Context;
+using CopeID.Extensions;
 using CopeID.Models;
 
 namespace CopeID.API.Services
 {
     public interface IBaseEntityService<TEntity> where TEntity : Entity
     {
+        IEnumerable<TEntity> GetAll();
+        IEnumerable<TEntity> GetAll(EntityQueryModel query);
+
         IEnumerable<TEntity> GetAllEntities(string[] include = null);
         Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null);
         Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null);
@@ -38,6 +43,50 @@ namespace CopeID.API.Services
         {
             _context = context;
             _set = _context.Set<TEntity>();
+        }
+
+        public IEnumerable<TEntity> GetAll() => GetAll(null);
+
+        public IEnumerable<TEntity> GetAll(EntityQueryModel queryModel)
+        {
+            return CreateFilteredQuery(queryModel, _set.AsTracking()).AsEnumerable();
+        }
+
+        protected IQueryable<TEntity> CreateFilteredQuery(EntityQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
+        {
+            IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
+            if (queryModel != null)
+            {
+                if (queryModel.Ids != null)
+                {
+                    query = query.Where(e => queryModel.Ids.Contains(e.Id));
+                }
+
+                if (queryModel.Include != null)
+                {
+                    string[] include = queryModel.Include.ToPascalCase();
+                    string[] validIncludeProperties = include.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
+                    foreach (string prop in validIncludeProperties)
+                        query = query.Include(prop);
+                }
+
+                if (queryModel.OrderBy != null)
+                {
+                    string[] orderBy = queryModel.OrderBy.ToPascalCase();
+                    string[] validOrderByProperties = orderBy.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
+                    foreach (string prop in validOrderByProperties)
+                        query = query.OrderBy(prop);
+                }
+
+                if (queryModel.OrderByDescending != null)
+                {
+                    string[] orderByDescending = queryModel.OrderByDescending.ToPascalCase();
+                    string[] validOrderByProperties = orderByDescending.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
+                    foreach (string prop in validOrderByProperties)
+                        query = query.OrderByDescending(prop);
+                }
+            }
+            return query;
         }
 
         public IEnumerable<TEntity> GetAllEntities(string[] include = null) =>

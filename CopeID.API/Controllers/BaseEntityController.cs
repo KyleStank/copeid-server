@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
 using CopeID.API.Services;
+using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Extensions;
 using CopeID.Models;
@@ -30,10 +31,14 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual IActionResult GetAllEntites([FromQuery] string[] include)
+        //public virtual IActionResult GetAllEntites([FromQuery] string[] include)
+        public virtual IActionResult GetAll([FromQuery] EntityQueryModel queryModel)
         {
-            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
+            List<TEntity> entities = _entityService.GetAll(queryModel).ToList();
             return Ok(entities);
+
+            //List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
+            //return Ok(entities);
         }
 
         [HttpGet("{id}")]
