@@ -56,6 +56,18 @@ namespace CopeID.API.Controllers
         }
 
         [NonAction]
+        public ObjectResult CreateNoContentRequest()
+        {
+            return CreateNoContentRequest(null);
+        }
+
+        [NonAction]
+        public ObjectResult CreateNoContentRequest(string message)
+        {
+            return CreateErrorRequest(new NoContentResponse(message));
+        }
+
+        [NonAction]
         public ObjectResult CreateNotFoundRequest()
         {
             return CreateNotFoundRequest(null);

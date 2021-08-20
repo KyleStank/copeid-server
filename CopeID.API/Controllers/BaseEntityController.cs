@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
 using CopeID.API.Services;
+using CopeID.Core.Exceptions;
 using CopeID.Extensions;
 using CopeID.Models;
 
@@ -32,22 +33,25 @@ namespace CopeID.API.Controllers
         public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         {
             List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
-
             return Ok(entities);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
         {
-            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
-            if (entity == null)
-            {
-                return CreateBadRequest("Invalid Entity ID provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
 
-            return Ok(entity);
+            try
+            {
+                TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
+                return Ok(entity);
+            }
+            catch (EntityNotFoundException notFoundException)
+            {
+                return CreateNotFoundRequest(notFoundException.Message);
+            }
         }
 
         [HttpPost]
@@ -56,56 +60,63 @@ namespace CopeID.API.Controllers
 
         public virtual async Task<IActionResult> CreateEntity([FromBody] TEntity model)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
 
-            TEntity entity = await _entityService.CreateEntity(model);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to create Entity.");
+                TEntity entity = await _entityService.CreateEntity(model);
+                return CreatedAtAction(nameof(CreateEntity), entity);
             }
-
-            return CreatedAtAction(nameof(CreateEntity), entity);
+            catch (EntityNotCreatedException notCreatedException)
+            {
+                return CreateBadRequest(notCreatedException.Message);
+            }
         }
 
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> UpdateEntity([FromBody] TEntity model)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
 
-            TEntity entity = await _entityService.UpdateEntity(model);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to update Entity.");
+                TEntity entity = await _entityService.UpdateEntity(model);
+                return Ok(entity);
             }
-
-            return Ok(entity);
+            catch (EntityNotFoundException notFoundException)
+            {
+                return CreateNotFoundRequest(notFoundException.Message);
+            }
+            catch (EntityNotUpdatedException notUpdatedException)
+            {
+                return CreateBadRequest(notUpdatedException.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> DeleteEntity(Guid id)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequest("Invalid body provided");
 
-            TEntity entity = await _entityService.DeleteEntity(id);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to delete Entity.");
+                TEntity entity = await _entityService.DeleteEntity(id);
+                return CreateNoContentRequest();
             }
-
-            return NoContent();
+            catch (EntityNotFoundException notFoundException)
+            {
+                return CreateNotFoundRequest(notFoundException.Message);
+            }
+            catch (EntityNotDeletedException notDeletedException)
+            {
+                return CreateBadRequest(notDeletedException.Message);
+            }
         }
     }
 }

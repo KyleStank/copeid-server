@@ -6,6 +6,7 @@ using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.Core.Exceptions;
 using CopeID.Context;
 using CopeID.Models;
 
@@ -29,7 +30,11 @@ namespace CopeID.API.Services
         protected readonly CopeIdDbContext _context;
         protected readonly DbSet<TEntity> _set;
 
-        protected static readonly IEnumerable<PropertyInfo> _entityProperties = typeof(TEntity).GetProperties().AsEnumerable();
+        protected static readonly Type _entityType = typeof(TEntity);
+        protected static readonly string _entityName = _entityType.Name;
+        protected static readonly IEnumerable<PropertyInfo> _entityProperties = _entityType.GetProperties().AsEnumerable();
+
+        protected static readonly string _notFoundError = $"{_entityName} could not be found";
 
         public BaseEntityService(CopeIdDbContext context)
         {
@@ -46,23 +51,30 @@ namespace CopeID.API.Services
         public async Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null) =>
             await FindEntityAsync(id, _set.AsNoTracking(), include);
 
-        protected async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null) =>
-            await GenerateIncludeQuery(include, query.Where(x => x.Id == id)).FirstOrDefaultAsync();
+        protected async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> query, string[] include = null)
+        {
+            TEntity result = await GenerateIncludeQuery(include, query.Where(x => x.Id == id)).FirstOrDefaultAsync();
+            if (result == null) throw new EntityNotFoundException(_notFoundError);
+
+            return result;
+        }
 
         public async Task<TEntity> CreateEntity(TEntity model)
         {
             TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null) await SaveChanges();
+            else throw new EntityNotCreatedException($"{_entityName} could not be created");
 
             return result;
         }
 
         public async Task<TEntity> UpdateEntity(TEntity model)
         {
-            if (model == null || !_set.Any(x => x.Id == model.Id)) return null;
+            if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException(_notFoundError);
 
             TEntity result = _set.Update(model)?.Entity ?? null;
             if (result != null) await SaveChanges();
+            else throw new EntityNotUpdatedException($"{_entityName} could not be updated");
 
             return result;
         }
@@ -70,10 +82,11 @@ namespace CopeID.API.Services
         public async Task<TEntity> DeleteEntity(Guid id)
         {
             TEntity model = await GetEntityUntrackedAsync(id);
-            if (model == null) return null;
+            if (model == null) throw new EntityNotFoundException(_notFoundError);
 
             TEntity result = _context.Remove(model)?.Entity ?? null;
             if (result != null) await SaveChanges();
+            else throw new EntityNotDeletedException($"{_entityName} could not be deleted");
 
             return result;
         }
