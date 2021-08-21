@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CopeID.API.QueryModels
 {
-    public class EntityQueryModel
+    public abstract class EntityQueryModel
     {
         [FromQuery]
         public Guid[] Ids { get; set; } = null;

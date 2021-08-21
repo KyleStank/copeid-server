@@ -14,10 +14,11 @@ using CopeID.Models;
 namespace CopeID.API.Controllers
 {
     [ProducesErrorResponseType(typeof(ErrorResponse))]
-    public abstract class BaseEntityController<TEntity, TLogger, TService> : BaseApiController
+    public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController
         where TEntity : Entity
+        where TQueryModel : EntityQueryModel
         where TLogger : ControllerBase
-        where TService : IBaseEntityService<TEntity>
+        where TService : IBaseEntityService<TEntity, TQueryModel>
     {
         protected readonly ILogger<TLogger> _logger;
         protected readonly TService _entityService;
@@ -30,7 +31,7 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual async Task<IActionResult> Get([FromQuery] EntityQueryModel queryModel)
+        public virtual async Task<IActionResult> Get([FromQuery] TQueryModel queryModel)
         {
             List<TEntity> entities = await _entityService.GetAll(queryModel);
             return Ok(entities);
@@ -39,7 +40,7 @@ namespace CopeID.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Get(Guid id, [FromQuery] EntityQueryModel queryModel)
+        public virtual async Task<IActionResult> Get(Guid id, [FromQuery] TQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
@@ -58,7 +59,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public virtual async Task<IActionResult> Create([FromBody] TEntity model, [FromQuery] EntityQueryModel queryModel)
+        public virtual async Task<IActionResult> Create([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
@@ -77,7 +78,7 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Update([FromBody] TEntity model, [FromQuery] EntityQueryModel queryModel)
+        public virtual async Task<IActionResult> Update([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 

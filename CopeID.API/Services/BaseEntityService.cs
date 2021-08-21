@@ -14,25 +14,29 @@ using CopeID.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseEntityService<TEntity> where TEntity : Entity
+    public interface IBaseEntityService<TEntity, TQueryModel>
+        where TEntity : Entity
+        where TQueryModel : EntityQueryModel
     {
         Task<List<TEntity>> GetAll();
-        Task<List<TEntity>> GetAll(EntityQueryModel queryModel);
+        Task<List<TEntity>> GetAll(TQueryModel queryModel);
         Task<TEntity> GetTrackedAsync(Guid id);
-        Task<TEntity> GetTrackedAsync(Guid id, EntityQueryModel queryModel);
+        Task<TEntity> GetTrackedAsync(Guid id, TQueryModel queryModel);
         Task<TEntity> GetUntrackedAsync(Guid id);
-        Task<TEntity> GetUntrackedAsync(Guid id, EntityQueryModel queryModel);
+        Task<TEntity> GetUntrackedAsync(Guid id, TQueryModel queryModel);
 
         Task<TEntity> Create(TEntity model);
-        Task<TEntity> Create(TEntity model, EntityQueryModel queryModel);
+        Task<TEntity> Create(TEntity model, TQueryModel queryModel);
 
         Task<TEntity> Update(TEntity model);
-        Task<TEntity> Update(TEntity model, EntityQueryModel queryModel);
+        Task<TEntity> Update(TEntity model, TQueryModel queryModel);
 
         Task Delete(Guid id);
     }
 
-    public abstract class BaseEntityService<TEntity> : IBaseEntityService<TEntity> where TEntity : Entity
+    public abstract class BaseEntityService<TEntity, TQueryModel> : IBaseEntityService<TEntity, TQueryModel>
+        where TEntity : Entity
+        where TQueryModel : EntityQueryModel
     {
         protected readonly CopeIdDbContext _context;
         protected readonly DbSet<TEntity> _set;
@@ -49,10 +53,10 @@ namespace CopeID.API.Services
         public async Task<List<TEntity>> GetAll() =>
             await GetAll(null);
 
-        public async Task<List<TEntity>> GetAll(EntityQueryModel queryModel) =>
+        public async Task<List<TEntity>> GetAll(TQueryModel queryModel) =>
             await CreateFilteredQuery(queryModel, _set.AsTracking()).ToListAsync();
 
-        protected IQueryable<TEntity> CreateFilteredQuery(EntityQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
+        protected IQueryable<TEntity> CreateFilteredQuery(TQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
         {
             IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
             if (queryModel != null)
@@ -105,16 +109,16 @@ namespace CopeID.API.Services
         public async Task<TEntity> GetTrackedAsync(Guid id) =>
             await GetTrackedAsync(id, null);
 
-        public async Task<TEntity> GetTrackedAsync(Guid id, EntityQueryModel queryModel) =>
+        public async Task<TEntity> GetTrackedAsync(Guid id, TQueryModel queryModel) =>
             await FindEntityAsync(id, queryModel, _set.AsTracking());
 
         public async Task<TEntity> GetUntrackedAsync(Guid id) =>
             await GetUntrackedAsync(id, null);
 
-        public async Task<TEntity> GetUntrackedAsync(Guid id, EntityQueryModel queryModel) =>
+        public async Task<TEntity> GetUntrackedAsync(Guid id, TQueryModel queryModel) =>
             await FindEntityAsync(id, queryModel, _set.AsNoTracking());
 
-        protected async Task<TEntity> FindEntityAsync(Guid id, EntityQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
+        protected async Task<TEntity> FindEntityAsync(Guid id, TQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
         {
             TEntity result = await CreateFilteredQuery(queryModel, (existingQuery != null ? existingQuery : _set.AsQueryable()).Where(x => x.Id == id)).FirstOrDefaultAsync();
             if (result == null) throw new EntityNotFoundException<TEntity>();
@@ -125,7 +129,7 @@ namespace CopeID.API.Services
         public async Task<TEntity> Create(TEntity model) =>
             await Create(model, null);
 
-        public async Task<TEntity> Create(TEntity model, EntityQueryModel queryModel)
+        public async Task<TEntity> Create(TEntity model, TQueryModel queryModel)
         {
             TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null) await _context.SaveChangesAsync();
@@ -137,7 +141,7 @@ namespace CopeID.API.Services
         public async Task<TEntity> Update(TEntity model) =>
             await Update(model, null);
 
-        public async Task<TEntity> Update(TEntity model, EntityQueryModel queryModel)
+        public async Task<TEntity> Update(TEntity model, TQueryModel queryModel)
         {
             if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException<TEntity>();
 
