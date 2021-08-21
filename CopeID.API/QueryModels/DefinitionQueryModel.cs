@@ -1,13 +1,25 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Linq;
+
+using Microsoft.AspNetCore.Mvc;
+
+using CopeID.Models;
 
 namespace CopeID.API.QueryModels
 {
-    public class DefinitionQueryModel : EntityQueryModel
+    public class DefinitionQueryModel : EntityQueryModel<Definition>
     {
         [FromQuery]
-        public string Name { get; set; }
+        public string[] Name { get; set; } = null;
 
         [FromQuery]
-        public string Meaning { get; set; }
+        public string[] Meaning { get; set; } = null;
+
+        protected override IQueryable<Definition> GetCustomQuery(IQueryable<Definition> query)
+        {
+            if (Name != null) query = query.Where(e => Name.Contains(e.Name));
+            if (Meaning != null) query = query.Where(e => Meaning.Contains(e.Meaning));
+
+            return query;
+        }
     }
 }

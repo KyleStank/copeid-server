@@ -16,7 +16,7 @@ namespace CopeID.API.Controllers
     [ProducesErrorResponseType(typeof(ErrorResponse))]
     public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController
         where TEntity : Entity
-        where TQueryModel : EntityQueryModel
+        where TQueryModel : EntityQueryModel<TEntity>
         where TLogger : ControllerBase
         where TService : IBaseEntityService<TEntity, TQueryModel>
     {

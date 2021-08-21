@@ -16,7 +16,7 @@ namespace CopeID.API.Services
 {
     public interface IBaseEntityService<TEntity, TQueryModel>
         where TEntity : Entity
-        where TQueryModel : EntityQueryModel
+        where TQueryModel : EntityQueryModel<TEntity>
     {
         Task<List<TEntity>> GetAll();
         Task<List<TEntity>> GetAll(TQueryModel queryModel);
@@ -36,7 +36,7 @@ namespace CopeID.API.Services
 
     public abstract class BaseEntityService<TEntity, TQueryModel> : IBaseEntityService<TEntity, TQueryModel>
         where TEntity : Entity
-        where TQueryModel : EntityQueryModel
+        where TQueryModel : EntityQueryModel<TEntity>
     {
         protected readonly CopeIdDbContext _context;
         protected readonly DbSet<TEntity> _set;
@@ -54,57 +54,7 @@ namespace CopeID.API.Services
             await GetAll(null);
 
         public async Task<List<TEntity>> GetAll(TQueryModel queryModel) =>
-            await CreateFilteredQuery(queryModel, _set.AsTracking()).ToListAsync();
-
-        protected IQueryable<TEntity> CreateFilteredQuery(TQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
-        {
-            IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
-            if (queryModel != null)
-            {
-                if (queryModel.Ids != null) query = query.Where(e => queryModel.Ids.Contains(e.Id));
-
-                if (queryModel.Include != null)
-                {
-                    string[] includeProperties = FindValidProperties(queryModel.Include.ToPascalCase());
-                    foreach (string prop in includeProperties) query = query.Include(prop);
-                }
-
-                if (queryModel.OrderBy != null || queryModel.OrderByDescending != null)
-                {
-                    // Order query ascendingly.
-                    string[] ascendingProperties = FindValidProperties(queryModel.OrderBy?.ToPascalCase());
-                    for (int i = 0; i < ascendingProperties.Length; i++)
-                    {
-                        string prop = ascendingProperties[i];
-                        if (i == 0)
-                        {
-                            query = query.OrderBy(prop);
-                            continue;
-                        }
-
-                        query = query.ThenBy(prop);
-                    }
-
-                    // Order query descendingly.
-                    string[] descendingProperties = FindValidProperties(queryModel.OrderByDescending?.ToPascalCase());
-                    for (int i = 0; i < descendingProperties.Length; i++)
-                    {
-                        string prop = descendingProperties[i];
-                        if (i == 0 && ascendingProperties.Length == 0)
-                        {
-                            query = query.OrderByDescending(prop);
-                            continue;
-                        }
-
-                        query = query.ThenByDescending(prop);
-                    }
-                }
-            }
-            return query;
-        }
-
-        protected string[] FindValidProperties(string[] properties) =>
-            properties?.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray() ?? new string[0];
+            await (queryModel?.FilterQuery(_set.AsTracking()) ?? _set.AsTracking()).ToListAsync();
 
         public async Task<TEntity> GetTrackedAsync(Guid id) =>
             await GetTrackedAsync(id, null);
@@ -120,7 +70,8 @@ namespace CopeID.API.Services
 
         protected async Task<TEntity> FindEntityAsync(Guid id, TQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
         {
-            TEntity result = await CreateFilteredQuery(queryModel, (existingQuery != null ? existingQuery : _set.AsQueryable()).Where(x => x.Id == id)).FirstOrDefaultAsync();
+            IQueryable<TEntity> query = (existingQuery != null ? existingQuery : _set.AsQueryable());
+            TEntity result = await (queryModel?.FilterQuery(query) ?? query).Where(x => x.Id == id).FirstOrDefaultAsync();
             if (result == null) throw new EntityNotFoundException<TEntity>();
 
             return result;
