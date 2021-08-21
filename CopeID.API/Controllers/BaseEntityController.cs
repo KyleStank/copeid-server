@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
+using CopeID.API.Responses;
 using CopeID.API.Services;
 using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
-using CopeID.Extensions;
 using CopeID.Models;
-
 namespace CopeID.API.Controllers
 {
+    [ProducesErrorResponseType(typeof(ErrorResponse))]
     public abstract class BaseEntityController<TEntity, TLogger, TService> : BaseApiController
         where TEntity : Entity
         where TLogger : ControllerBase
@@ -31,22 +30,22 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual IActionResult GetAll([FromQuery] EntityQueryModel queryModel)
+        public virtual async Task<IActionResult> Get([FromQuery] EntityQueryModel queryModel)
         {
-            List<TEntity> entities = _entityService.GetAll(queryModel).ToList();
+            List<TEntity> entities = await _entityService.GetAll(queryModel);
             return Ok(entities);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
+        public virtual async Task<IActionResult> Get(Guid id, [FromQuery] EntityQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
+                TEntity entity = await _entityService.GetUntrackedAsync(id, queryModel);
                 return Ok(entity);
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
@@ -59,14 +58,14 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public virtual async Task<IActionResult> CreateEntity([FromBody] TEntity model)
+        public virtual async Task<IActionResult> Create([FromBody] TEntity model, [FromQuery] EntityQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.CreateEntity(model);
-                return CreatedAtAction(nameof(CreateEntity), entity);
+                TEntity entity = await _entityService.Create(model, queryModel);
+                return CreatedAtAction(nameof(Create), entity);
             }
             catch (EntityNotCreatedException<TEntity> notCreatedException)
             {
@@ -78,13 +77,13 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> UpdateEntity([FromBody] TEntity model)
+        public virtual async Task<IActionResult> Update([FromBody] TEntity model, [FromQuery] EntityQueryModel queryModel)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.UpdateEntity(model);
+                TEntity entity = await _entityService.Update(model, queryModel);
                 return Ok(entity);
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
@@ -101,13 +100,13 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> DeleteEntity(Guid id)
+        public virtual async Task<IActionResult> Delete(Guid id)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.DeleteEntity(id);
+                await _entityService.Delete(id);
                 return CreateNoContentResponse();
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
