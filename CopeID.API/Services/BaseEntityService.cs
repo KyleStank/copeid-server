@@ -18,8 +18,6 @@ namespace CopeID.API.Services
     {
         IEnumerable<TEntity> GetAll();
         IEnumerable<TEntity> GetAll(EntityQueryModel query);
-
-        IEnumerable<TEntity> GetAllEntities(string[] include = null);
         Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null);
         Task<TEntity> GetEntityUntrackedAsync(Guid id, string[] include = null);
 
@@ -36,7 +34,6 @@ namespace CopeID.API.Services
         protected readonly DbSet<TEntity> _set;
 
         protected static readonly Type _entityType = typeof(TEntity);
-        protected static readonly string _entityName = _entityType.Name;
         protected static readonly IEnumerable<PropertyInfo> _entityProperties = _entityType.GetProperties().AsEnumerable();
 
         public BaseEntityService(CopeIdDbContext context)
@@ -47,50 +44,57 @@ namespace CopeID.API.Services
 
         public IEnumerable<TEntity> GetAll() => GetAll(null);
 
-        public IEnumerable<TEntity> GetAll(EntityQueryModel queryModel)
-        {
-            return CreateFilteredQuery(queryModel, _set.AsTracking()).AsEnumerable();
-        }
+        public IEnumerable<TEntity> GetAll(EntityQueryModel queryModel) => CreateFilteredQuery(queryModel, _set.AsTracking()).AsEnumerable();
 
         protected IQueryable<TEntity> CreateFilteredQuery(EntityQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
         {
             IQueryable<TEntity> query = existingQuery ?? _set.AsQueryable();
             if (queryModel != null)
             {
-                if (queryModel.Ids != null)
-                {
-                    query = query.Where(e => queryModel.Ids.Contains(e.Id));
-                }
+                if (queryModel.Ids != null) query = query.Where(e => queryModel.Ids.Contains(e.Id));
 
                 if (queryModel.Include != null)
                 {
-                    string[] include = queryModel.Include.ToPascalCase();
-                    string[] validIncludeProperties = include.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
-                    foreach (string prop in validIncludeProperties)
-                        query = query.Include(prop);
+                    string[] includeProperties = FindValidProperties(queryModel.Include.ToPascalCase());
+                    foreach (string prop in includeProperties) query = query.Include(prop);
                 }
 
-                if (queryModel.OrderBy != null)
+                if (queryModel.OrderBy != null || queryModel.OrderByDescending != null)
                 {
-                    string[] orderBy = queryModel.OrderBy.ToPascalCase();
-                    string[] validOrderByProperties = orderBy.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
-                    foreach (string prop in validOrderByProperties)
-                        query = query.OrderBy(prop);
-                }
+                    // Order query ascendingly.
+                    string[] ascendingProperties = FindValidProperties(queryModel.OrderBy?.ToPascalCase());
+                    for (int i = 0; i < ascendingProperties.Length; i++)
+                    {
+                        string prop = ascendingProperties[i];
+                        if (i == 0)
+                        {
+                            query = query.OrderBy(prop);
+                            continue;
+                        }
 
-                if (queryModel.OrderByDescending != null)
-                {
-                    string[] orderByDescending = queryModel.OrderByDescending.ToPascalCase();
-                    string[] validOrderByProperties = orderByDescending.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray();
-                    foreach (string prop in validOrderByProperties)
-                        query = query.OrderByDescending(prop);
+                        query = query.ThenBy(prop);
+                    }
+
+                    // Order query descendingly.
+                    string[] descendingProperties = FindValidProperties(queryModel.OrderByDescending?.ToPascalCase());
+                    for (int i = 0; i < descendingProperties.Length; i++)
+                    {
+                        string prop = descendingProperties[i];
+                        if (i == 0 && ascendingProperties.Length == 0)
+                        {
+                            query = query.OrderByDescending(prop);
+                            continue;
+                        }
+
+                        query = query.ThenByDescending(prop);
+                    }
                 }
             }
             return query;
         }
 
-        public IEnumerable<TEntity> GetAllEntities(string[] include = null) =>
-            GenerateIncludeQuery(include, _set.AsTracking()).AsEnumerable();
+        protected string[] FindValidProperties(string[] properties) =>
+            properties?.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray() ?? new string[0];
 
         public async Task<TEntity> GetEntityTrackedAsync(Guid id, string[] include = null) =>
             await FindEntityAsync(id, _set.AsTracking(), include);

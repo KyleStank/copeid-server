@@ -31,14 +31,10 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        //public virtual IActionResult GetAllEntites([FromQuery] string[] include)
         public virtual IActionResult GetAll([FromQuery] EntityQueryModel queryModel)
         {
             List<TEntity> entities = _entityService.GetAll(queryModel).ToList();
             return Ok(entities);
-
-            //List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
-            //return Ok(entities);
         }
 
         [HttpGet("{id}")]
