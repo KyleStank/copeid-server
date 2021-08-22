@@ -54,7 +54,7 @@ namespace CopeID.API.Services
             await GetAll(null);
 
         public async Task<List<TEntity>> GetAll(TQueryModel queryModel) =>
-            await (queryModel?.FilterQuery(_set.AsTracking()) ?? _set.AsTracking()).ToListAsync();
+            await (queryModel != null ? queryModel.FilterQuery(_set.AsTracking()) : _set.AsTracking()).ToListAsync();
 
         public async Task<TEntity> GetTrackedAsync(Guid id) =>
             await GetTrackedAsync(id, null);
@@ -70,8 +70,8 @@ namespace CopeID.API.Services
 
         protected async Task<TEntity> FindEntityAsync(Guid id, TQueryModel queryModel, IQueryable<TEntity> existingQuery = null)
         {
-            IQueryable<TEntity> query = (existingQuery != null ? existingQuery : _set.AsQueryable());
-            TEntity result = await (queryModel?.FilterQuery(query) ?? query).Where(x => x.Id == id).FirstOrDefaultAsync();
+            IQueryable<TEntity> query = existingQuery != null ? existingQuery : _set.AsQueryable();
+            TEntity result = await (queryModel != null ? queryModel.FilterQuery(query) : query).Where(x => x.Id == id).FirstOrDefaultAsync();
             if (result == null) throw new EntityNotFoundException<TEntity>();
 
             return result;

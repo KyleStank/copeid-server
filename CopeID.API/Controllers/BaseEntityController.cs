@@ -108,7 +108,8 @@ namespace CopeID.API.Controllers
             try
             {
                 await _entityService.Delete(id);
-                return CreateNoContentResponse();
+                //return CreateNoContentResponse(); // TODO: This returns an error in the client. Investigate BaseApiController to find the root.
+                return NoContent();
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
             {
