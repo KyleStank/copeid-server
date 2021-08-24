@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
+using CopeID.API.Responses;
 using CopeID.API.Services;
-using CopeID.Extensions;
+using CopeID.API.QueryModels;
+using CopeID.Core.Exceptions;
 using CopeID.Models;
-
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseEntityController<TEntity, TLogger, TService> : BaseApiController
+    [ProducesErrorResponseType(typeof(ErrorResponse))]
+    public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController
         where TEntity : Entity
+        where TQueryModel : EntityQueryModel<TEntity>
         where TLogger : ControllerBase
-        where TService : IBaseEntityService<TEntity>
+        where TService : IBaseEntityService<TEntity, TQueryModel>
     {
         protected readonly ILogger<TLogger> _logger;
         protected readonly TService _entityService;
@@ -29,83 +31,94 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual IActionResult GetAllEntites([FromQuery] string[] include)
+        public virtual async Task<IActionResult> Get([FromQuery] TQueryModel queryModel)
         {
-            List<TEntity> entities = _entityService.GetAllEntities(include?.ToPascalCase()).ToList();
-
+            List<TEntity> entities = await _entityService.GetAll(queryModel);
             return Ok(entities);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> GetEntity(Guid id, [FromQuery] string[] include)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public virtual async Task<IActionResult> Get(Guid id, [FromQuery] TQueryModel queryModel)
         {
-            TEntity entity = await _entityService.GetEntityUntrackedAsync(id, include?.ToPascalCase());
-            if (entity == null)
-            {
-                return CreateBadRequest("Invalid Entity ID provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
-            return Ok(entity);
+            try
+            {
+                TEntity entity = await _entityService.GetUntrackedAsync(id, queryModel);
+                return Ok(entity);
+            }
+            catch (EntityNotFoundException<TEntity> notFoundException)
+            {
+                return CreateNotFoundResponse(notFoundException.Message);
+            }
         }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public virtual async Task<IActionResult> CreateEntity([FromBody] TEntity model)
+        public virtual async Task<IActionResult> Create([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
-            TEntity entity = await _entityService.CreateEntity(model);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to create Entity.");
+                TEntity entity = await _entityService.Create(model, queryModel);
+                return CreatedAtAction(nameof(Create), entity);
             }
-
-            return CreatedAtAction(nameof(CreateEntity), entity);
+            catch (EntityNotCreatedException<TEntity> notCreatedException)
+            {
+                return CreateBadRequestResponse(notCreatedException.Message);
+            }
         }
 
         [HttpPut]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> UpdateEntity([FromBody] TEntity model)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public virtual async Task<IActionResult> Update([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
-            TEntity entity = await _entityService.UpdateEntity(model);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to update Entity.");
+                TEntity entity = await _entityService.Update(model, queryModel);
+                return Ok(entity);
             }
-
-            return Ok(entity);
+            catch (EntityNotFoundException<TEntity> notFoundException)
+            {
+                return CreateNotFoundResponse(notFoundException.Message);
+            }
+            catch (EntityNotUpdatedException<TEntity> notUpdatedException)
+            {
+                return CreateBadRequestResponse(notUpdatedException.Message);
+            }
         }
 
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public virtual async Task<IActionResult> DeleteEntity(Guid id)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public virtual async Task<IActionResult> Delete(Guid id)
         {
-            if (!ModelState.IsValid)
-            {
-                return CreateBadRequest("Invalid Entity model provided.");
-            }
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
-            TEntity entity = await _entityService.DeleteEntity(id);
-            if (entity == null)
+            try
             {
-                return CreateBadRequest("Unable to delete Entity.");
+                await _entityService.Delete(id);
+                //return CreateNoContentResponse(); // TODO: This returns an error in the client. Investigate BaseApiController to find the root.
+                return NoContent();
             }
-
-            return NoContent();
+            catch (EntityNotFoundException<TEntity> notFoundException)
+            {
+                return CreateNotFoundResponse(notFoundException.Message);
+            }
+            catch (EntityNotDeletedException<TEntity> notDeletedException)
+            {
+                return CreateBadRequestResponse(notDeletedException.Message);
+            }
         }
     }
 }

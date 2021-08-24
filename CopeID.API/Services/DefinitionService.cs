@@ -1,11 +1,12 @@
+using CopeID.API.QueryModels;
 using CopeID.Context;
 using CopeID.Models;
 
 namespace CopeID.API.Services
 {
-    public interface IDefinitionService : IBaseEntityService<Definition> { }
+    public interface IDefinitionService : IBaseEntityService<Definition, DefinitionQueryModel> { }
 
-    public class DefinitionService : BaseEntityService<Definition>, IDefinitionService
+    public class DefinitionService : BaseEntityService<Definition, DefinitionQueryModel>, IDefinitionService
     {
         public DefinitionService(CopeIdDbContext context) : base(context) { }
     }

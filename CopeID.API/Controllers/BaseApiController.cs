@@ -8,75 +8,74 @@ namespace CopeID.API.Controllers
 {
     public abstract class BaseApiController : ControllerBase
     {
-        [NonAction]
-        public ObjectResult CreateErrorRequest(ErrorResponse response)
+        protected ObjectResult CreateErrorResponse(ErrorResponse response)
         {
             if (response == null)
             {
-                return CreateErrorRequest(new ErrorResponse(HttpStatusCode.InternalServerError, "An error occurred while processing your request"));
+                return CreateErrorResponse(new ErrorResponse(HttpStatusCode.InternalServerError, "An error occurred while processing your request"));
             }
 
             return StatusCode(response.Code, response);
         }
 
-        [NonAction]
-        public ObjectResult CreateBadRequest()
+        protected ObjectResult CreateBadRequestResponse()
         {
-            return CreateBadRequest(null);
+            return CreateBadRequestResponse(null);
         }
 
-        [NonAction]
-        public ObjectResult CreateBadRequest(string message)
+        protected ObjectResult CreateBadRequestResponse(string message)
         {
-            return CreateErrorRequest(new BadRequestResponse(message));
+            return CreateErrorResponse(new BadRequestResponse(message));
         }
 
-        [NonAction]
-        public ObjectResult CreateForbiddenRequest()
+        protected ObjectResult CreateForbiddenResponse()
         {
-            return CreateForbiddenRequest(null);
+            return CreateForbiddenResponse(null);
         }
 
-        [NonAction]
-        public ObjectResult CreateForbiddenRequest(string message)
+        protected ObjectResult CreateForbiddenResponse(string message)
         {
-            return CreateErrorRequest(new ForbiddenResponse(message));
+            return CreateErrorResponse(new ForbiddenResponse(message));
         }
 
-        [NonAction]
-        public ObjectResult CreateInternalServerErrorRequest()
+        protected ObjectResult CreateInternalServerErrorResponse()
         {
-            return CreateInternalServerErrorRequest(null);
+            return CreateInternalServerErrorResponse(null);
         }
 
-        [NonAction]
-        public ObjectResult CreateInternalServerErrorRequest(string message)
+        protected ObjectResult CreateInternalServerErrorResponse(string message)
         {
-            return CreateErrorRequest(new InternalServerErrorResponse(message));
+            return CreateErrorResponse(new InternalServerErrorResponse(message));
         }
 
-        [NonAction]
-        public ObjectResult CreateNotFoundRequest()
+        protected ObjectResult CreateNoContentResponse()
         {
-            return CreateNotFoundRequest(null);
+            return CreateNoContentResponse(null);
         }
 
-        [NonAction]
-        public ObjectResult CreateNotFoundRequest(string message)
+        protected ObjectResult CreateNoContentResponse(string message)
         {
-            return CreateErrorRequest(new NotFoundResponse(message));
+            return CreateErrorResponse(new NoContentResponse(message));
         }
 
-        [NonAction]
-        public ObjectResult CreateUnauthorizedRequest()
+        protected ObjectResult CreateNotFoundResponse()
         {
-            return CreateUnauthorizedRequest(null);
+            return CreateNotFoundResponse(null);
         }
 
-        [NonAction]
-        public ObjectResult CreateUnauthorizedRequest(string message)
+        protected ObjectResult CreateNotFoundResponse(string message)
         {
-            return CreateErrorRequest(new UnauthorizedResponse(message));
+            return CreateErrorResponse(new NotFoundResponse(message));
+        }
+
+        protected ObjectResult CreateUnauthorizedResponse()
+        {
+            return CreateUnauthorizedResponse(null);
+        }
+
+        protected ObjectResult CreateUnauthorizedResponse(string message)
+        {
+            return CreateErrorResponse(new UnauthorizedResponse(message));
         }
     }
 }
