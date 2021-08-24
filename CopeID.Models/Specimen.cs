@@ -19,5 +19,25 @@ namespace CopeID.Models
         public SpecimenGender Gender { get; set; }
 
         public float Length { get; set; }
+
+        public string SpecialCharacteristics { get; set; }
+
+        public string Antenule { get; set; }
+
+        public string Rostrum { get; set; }
+
+        public string BodyShape { get; set; }
+
+        public string Eyes { get; set; }
+
+        public string Cephalosome { get; set; }
+
+        public string Thorax { get; set; }
+
+        public string Urosome { get; set; }
+
+        public string Furca { get; set; }
+
+        public string Setea { get; set; }
     }
 }
