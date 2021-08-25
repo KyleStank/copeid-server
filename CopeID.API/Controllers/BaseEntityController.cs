@@ -13,7 +13,6 @@ using CopeID.Core.Exceptions;
 using CopeID.Models;
 namespace CopeID.API.Controllers
 {
-    [ProducesErrorResponseType(typeof(ErrorResponse))]
     public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController
         where TEntity : Entity
         where TQueryModel : EntityQueryModel<TEntity>

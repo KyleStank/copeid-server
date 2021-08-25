@@ -6,6 +6,7 @@ using CopeID.API.Responses;
 
 namespace CopeID.API.Controllers
 {
+    [ProducesErrorResponseType(typeof(ErrorResponse))]
     public abstract class BaseApiController : ControllerBase
     {
         protected ObjectResult CreateErrorResponse(ErrorResponse response)
