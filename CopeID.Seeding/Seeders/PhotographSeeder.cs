@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 using CopeID.Context;
-using CopeID.Models;
+using CopeID.Models.Photographs;
 
 namespace CopeID.Seeding.Seeders
 {

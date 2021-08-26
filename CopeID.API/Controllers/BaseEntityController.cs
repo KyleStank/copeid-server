@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
-using CopeID.API.Responses;
 using CopeID.API.Services;
 using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;

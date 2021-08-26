@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Context;
-using CopeID.Extensions;
 using CopeID.Models;
 
 namespace CopeID.API.Services

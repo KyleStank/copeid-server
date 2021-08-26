@@ -13,7 +13,13 @@ using Microsoft.EntityFrameworkCore;
 
 using Newtonsoft.Json;
 
-using CopeID.API.Services;
+using CopeID.API.Services.Contributors;
+using CopeID.API.Services.Definitions;
+using CopeID.API.Services.Filters;
+using CopeID.API.Services.Genuses;
+using CopeID.API.Services.Photographs;
+using CopeID.API.Services.References;
+using CopeID.API.Services.Specimens;
 using CopeID.Context;
 using CopeID.Seeding;
 

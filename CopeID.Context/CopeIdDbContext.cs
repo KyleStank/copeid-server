@@ -1,6 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using CopeID.Models;
+using CopeID.Models.Contributors;
+using CopeID.Models.Definitions;
+using CopeID.Models.Filters;
+using CopeID.Models.Genuses;
+using CopeID.Models.Photographs;
+using CopeID.Models.References;
+using CopeID.Models.Specimens;
 
 namespace CopeID.Context
 {

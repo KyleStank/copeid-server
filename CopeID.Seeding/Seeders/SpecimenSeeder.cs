@@ -11,7 +11,7 @@
 //using Newtonsoft.Json;
 
 //using CopeID.Context;
-//using CopeID.Models;
+//using CopeID.Models.Specimens;
 
 //namespace CopeID.Seeding.Seeders
 //{
