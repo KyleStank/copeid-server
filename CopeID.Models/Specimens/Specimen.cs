@@ -5,12 +5,6 @@ using CopeID.Models.Photographs;
 
 namespace CopeID.Models.Specimens
 {
-    public enum SpecimenGender
-    {
-        Male = 0,
-        Female = 1
-    }
-
     public class Specimen : Entity
     {
         public Guid GenusId { get; set; }
