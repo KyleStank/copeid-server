@@ -10,6 +10,8 @@ namespace CopeID.Models
         public string TypeName { get; set; }
 
         public virtual ICollection<FilterModelProperty> TypeProperties { get; set; }
+
+        public virtual ICollection<Filter> Filters { get; set; }
     }
 
     public class FilterModelProperty : Entity
@@ -24,10 +26,12 @@ namespace CopeID.Models
     public class Filter : Entity
     {
         [Required]
-        public string EntityType { get; set; }
+        public Guid FilterModelId { get; set; }
 
         [Required]
         public string DisplayName { get; set; }
+
+        public virtual FilterModel Model { get; set; }
 
         public virtual ICollection<FilterSection> Sections { get; set; }
     }
@@ -38,12 +42,6 @@ namespace CopeID.Models
         public Guid FilterId { get; set; }
 
         [Required]
-        public string EntityProperty { get; set; }
-
-        [Required]
-        public FilterSectionEntityPropertyType EntityPropertyType { get; set; }
-
-        [Required]
         public string Code { get; set; } // L
 
         [Required]
@@ -52,14 +50,6 @@ namespace CopeID.Models
         public virtual Filter Filter { get; set; }
 
         public virtual ICollection<FilterSectionOption> Options { get; set; } // (0.5, Z), (1, Y), (1.5, X), (2, W)
-    }
-
-    public enum FilterSectionEntityPropertyType
-    {
-        String = 0,
-        Boolean = 1,
-        Integer = 2,
-        Decimal = 3
     }
 
     public class FilterSectionOption : Entity
