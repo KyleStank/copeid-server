@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.Filters;
@@ -27,6 +28,13 @@ namespace CopeID.API.Controllers.Filters
         {
             _logger = logger;
             _filterService = filterService;
+        }
+
+        [HttpGet()]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public virtual IActionResult Get()
+        {
+            return Ok("Filter Controller Placeholder");
         }
     }
 }
