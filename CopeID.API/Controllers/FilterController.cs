@@ -1,40 +1,52 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
-using CopeID.API.BodyData;
 using CopeID.API.Services;
-using CopeID.Core.Exceptions;
+using CopeID.API.QueryModels;
 using CopeID.Models;
 
 namespace CopeID.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class FilterController : BaseApiController
+    public class FilterController : BaseEntityController<Filter, FilterQueryModel, FilterController, IFilterService>
     {
-        private readonly IFilterService _filterService;
+        public FilterController(ILogger<FilterController> logger, IFilterService filterService)
+            : base(logger, filterService) { }
 
-        public FilterController(IFilterService filterService)
+        [HttpGet("EntityTypes")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public virtual IActionResult GetEntityTypes()
         {
-            _filterService = filterService;
+            return Ok(FindAllEntityTypes().Select(x => x.FullName));
         }
 
-        [HttpPost]
+        [HttpGet("EntityTypes/{entityTypeName}/Properties")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Filter([FromBody] FilterData filterData)
+        public virtual IActionResult GetEntityTypeProperties(string entityTypeName)
         {
-            try
+            Type entityType = FindAllEntityTypes().FirstOrDefault(t => entityTypeName == t.FullName);
+            if (entityType == null)
             {
-                Specimen specimen = await _filterService.Filter(filterData);
-                return Ok(specimen);
+                return CreateNotFoundResponse($"Entity type `{entityTypeName}` not found");
             }
-            catch (EntityNotFoundException<Specimen> notFoundException)
-            {
-                return CreateNotFoundResponse(notFoundException.Message);
-            }
+
+            IEnumerable<string> props = entityType.GetProperties().Select(x => x.Name);
+            return Ok(props);
+        }
+
+        protected virtual IEnumerable<Type> FindAllEntityTypes()
+        {
+            return Assembly.GetAssembly(typeof(Entity))
+                .GetTypes()
+                .Where(x => !x.IsAbstract && x.IsClass && !x.FullName.Contains("Filter"));
         }
     }
 }

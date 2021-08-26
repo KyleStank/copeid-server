@@ -10,6 +10,10 @@ namespace CopeID.Context
 
         public DbSet<Definition> Definitions { get; set; }
 
+        public DbSet<FilterModel> FilterModels { get; set; }
+
+        public DbSet<FilterModelProperty> FilterModelProperties { get; set; }
+
         public DbSet<Filter> Filters { get; set; }
 
         public DbSet<FilterSection> FilterSections { get; set; }

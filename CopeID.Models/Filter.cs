@@ -4,6 +4,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace CopeID.Models
 {
+    public class FilterModel : Entity
+    {
+        [Required]
+        public string TypeName { get; set; }
+
+        public virtual ICollection<FilterModelProperty> TypeProperties { get; set; }
+    }
+
+    public class FilterModelProperty : Entity
+    {
+        [Required]
+        public Guid FilterModelId { get; set; }
+
+        [Required]
+        public string PropertyName { get; set; }
+    }
+
     public class Filter : Entity
     {
         [Required]
