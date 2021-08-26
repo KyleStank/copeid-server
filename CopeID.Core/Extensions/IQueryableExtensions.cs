@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace CopeID.Extensions
+namespace CopeID.Core.Extensions
 {
     // Source: https://stackoverflow.com/questions/34899933/sorting-using-property-name-as-string
     public static class IQueryableExtensions

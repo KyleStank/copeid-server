@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="../CopeID.Core/CopeID.Core.csproj" />
     <ProjectReference Include="../CopeID.Context/CopeID.Context.csproj" />
-    <ProjectReference Include="../CopeID.Extensions/CopeID.Extensions.csproj" />
     <ProjectReference Include="../CopeID.Models/CopeID.Models.csproj" />
     <ProjectReference Include="../CopeID.QueryModels/CopeID.QueryModels.csproj" />
     <ProjectReference Include="../CopeID.Seeding/CopeID.Seeding.csproj" />

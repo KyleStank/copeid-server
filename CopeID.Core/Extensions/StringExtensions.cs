@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CopeID.Extensions
+namespace CopeID.Core.Extensions
 {
     public static class StringExtensions
     {

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../CopeID.Extensions/CopeID.Extensions.csproj" />
+    <ProjectReference Include="../CopeID.Core/CopeID.Core.csproj" />
     <ProjectReference Include="../CopeID.Models/CopeID.Models.csproj" />
   </ItemGroup>
 

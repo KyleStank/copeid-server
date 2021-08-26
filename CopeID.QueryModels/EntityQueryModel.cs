@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-using CopeID.Extensions;
+using CopeID.Core.Extensions;
 using CopeID.Models;
 
 namespace CopeID.QueryModels
