@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.Definitions;
 
-namespace CopeID.API.QueryModels.Definitions
+namespace CopeID.QueryModels.Definitions
 {
     public class DefinitionQueryModel : EntityQueryModel<Definition>
     {

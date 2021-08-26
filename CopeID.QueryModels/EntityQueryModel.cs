@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using CopeID.Extensions;
 using CopeID.Models;
 
-namespace CopeID.API.QueryModels
+namespace CopeID.QueryModels
 {
     public abstract class EntityQueryModel<TEntity> where TEntity : Entity
     {

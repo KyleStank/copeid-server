@@ -1,5 +1,5 @@
-﻿using CopeID.API.QueryModels.Definitions;
-using CopeID.Models.Definitions;
+﻿using CopeID.Models.Definitions;
+using CopeID.QueryModels.Definitions;
 
 namespace CopeID.API.Services.Definitions
 {

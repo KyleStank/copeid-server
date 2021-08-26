@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.Contributors;
-using CopeID.API.QueryModels.Contributors;
 using CopeID.Models.Contributors;
+using CopeID.QueryModels.Contributors;
 
 namespace CopeID.API.Controllers.Contributors
 {

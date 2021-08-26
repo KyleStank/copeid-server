@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.Filters;
-using CopeID.API.QueryModels.Filters;
 using CopeID.Models.Filters;
+using CopeID.QueryModels.Filters;
 
 namespace CopeID.API.Controllers.Filters
 {

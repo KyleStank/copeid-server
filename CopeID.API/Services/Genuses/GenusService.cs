@@ -1,6 +1,6 @@
-﻿using CopeID.API.QueryModels.Genuses;
-using CopeID.Context;
+﻿using CopeID.Context;
 using CopeID.Models.Genuses;
+using CopeID.QueryModels.Genuses;
 
 namespace CopeID.API.Services.Genuses
 {

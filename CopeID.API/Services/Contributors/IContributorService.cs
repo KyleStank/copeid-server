@@ -1,5 +1,5 @@
-﻿using CopeID.API.QueryModels.Contributors;
-using CopeID.Models.Contributors;
+﻿using CopeID.Models.Contributors;
+using CopeID.QueryModels.Contributors;
 
 namespace CopeID.API.Services.Contributors
 {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.Genuses;
 
-namespace CopeID.API.QueryModels.Genuses
+namespace CopeID.QueryModels.Genuses
 {
     public class GenusQueryModel : EntityQueryModel<Genus>
     {

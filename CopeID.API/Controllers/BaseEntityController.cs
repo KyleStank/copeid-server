@@ -7,9 +7,10 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
 using CopeID.API.Services;
-using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Models;
+using CopeID.QueryModels;
+
 namespace CopeID.API.Controllers
 {
     public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController

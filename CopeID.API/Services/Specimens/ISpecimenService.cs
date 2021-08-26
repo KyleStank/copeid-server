@@ -1,5 +1,5 @@
-﻿using CopeID.API.QueryModels.Specimens;
-using CopeID.Models.Specimens;
+﻿using CopeID.Models.Specimens;
+using CopeID.QueryModels.Specimens;
 
 namespace CopeID.API.Services.Specimens
 {

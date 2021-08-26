@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.Specimens;
 
-namespace CopeID.API.QueryModels.Specimens
+namespace CopeID.QueryModels.Specimens
 {
     public class SpecimenQueryModel : EntityQueryModel<Specimen>
     {

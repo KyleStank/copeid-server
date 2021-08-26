@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.Photographs;
-using CopeID.API.QueryModels.Photographs;
 using CopeID.Models.Photographs;
+using CopeID.QueryModels.Photographs;
 
 namespace CopeID.API.Controllers.Photographs
 {

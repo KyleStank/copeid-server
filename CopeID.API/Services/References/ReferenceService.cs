@@ -1,6 +1,6 @@
-﻿using CopeID.API.QueryModels.References;
-using CopeID.Context;
+﻿using CopeID.Context;
 using CopeID.Models.References;
+using CopeID.QueryModels.References;
 
 namespace CopeID.API.Services.References
 {

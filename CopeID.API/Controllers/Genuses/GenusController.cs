@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.Genuses;
-using CopeID.API.QueryModels.Genuses;
 using CopeID.Models.Genuses;
+using CopeID.QueryModels.Genuses;
 
 namespace CopeID.API.Controllers.Genuses
 {

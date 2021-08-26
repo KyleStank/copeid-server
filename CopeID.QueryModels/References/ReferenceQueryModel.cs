@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.References;
 
-namespace CopeID.API.QueryModels.References
+namespace CopeID.QueryModels.References
 {
     public class ReferenceQueryModel : EntityQueryModel<Reference>
     {

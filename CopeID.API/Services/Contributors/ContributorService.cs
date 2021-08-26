@@ -1,6 +1,6 @@
-using CopeID.API.QueryModels.Contributors;
 using CopeID.Context;
 using CopeID.Models.Contributors;
+using CopeID.QueryModels.Contributors;
 
 namespace CopeID.API.Services.Contributors
 {

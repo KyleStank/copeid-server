@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.Contributors;
 
-namespace CopeID.API.QueryModels.Contributors
+namespace CopeID.QueryModels.Contributors
 {
     public class ContributorQueryModel : EntityQueryModel<Contributor>
     {

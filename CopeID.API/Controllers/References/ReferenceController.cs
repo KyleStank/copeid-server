@@ -2,8 +2,8 @@
 using Microsoft.Extensions.Logging;
 
 using CopeID.API.Services.References;
-using CopeID.API.QueryModels.References;
 using CopeID.Models.References;
+using CopeID.QueryModels.References;
 
 namespace CopeID.API.Controllers.References
 {

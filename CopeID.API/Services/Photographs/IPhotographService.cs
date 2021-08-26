@@ -1,5 +1,5 @@
-﻿using CopeID.API.QueryModels.Photographs;
-using CopeID.Models.Photographs;
+﻿using CopeID.Models.Photographs;
+using CopeID.QueryModels.Photographs;
 
 namespace CopeID.API.Services.Photographs
 {

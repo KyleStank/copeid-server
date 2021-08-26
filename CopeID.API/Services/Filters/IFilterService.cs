@@ -1,5 +1,5 @@
-﻿using CopeID.API.QueryModels.Filters;
-using CopeID.Models.Filters;
+﻿using CopeID.Models.Filters;
+using CopeID.QueryModels.Filters;
 
 namespace CopeID.API.Services.Filters
 {

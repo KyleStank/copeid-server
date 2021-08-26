@@ -6,10 +6,10 @@ using System.Reflection;
 
 using Microsoft.EntityFrameworkCore;
 
-using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Context;
 using CopeID.Models;
+using CopeID.QueryModels;
 
 namespace CopeID.API.Services
 {

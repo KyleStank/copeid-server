@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.Models.Photographs;
 
-namespace CopeID.API.QueryModels.Photographs
+namespace CopeID.QueryModels.Photographs
 {
     public class PhotographQueryModel : EntityQueryModel<Photograph>
     {

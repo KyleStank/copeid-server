@@ -2,7 +2,7 @@
 
 using CopeID.Models.Filters;
 
-namespace CopeID.API.QueryModels.Filters
+namespace CopeID.QueryModels.Filters
 {
     public class FilterQueryModel : EntityQueryModel<Filter>
     {
