@@ -8,7 +8,7 @@ namespace CopeID.Models.Filters
         [Required]
         public string TypeName { get; set; }
 
-        public virtual ICollection<FilterModelProperty> TypeProperties { get; set; }
+        public virtual ICollection<FilterModelProperty> FilterModelProperties { get; set; }
 
         public virtual ICollection<Filter> Filters { get; set; }
     }

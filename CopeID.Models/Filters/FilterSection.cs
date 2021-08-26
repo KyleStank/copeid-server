@@ -17,6 +17,6 @@ namespace CopeID.Models.Filters
 
         public virtual Filter Filter { get; set; }
 
-        public virtual ICollection<FilterSectionOption> Options { get; set; } // (0.5, Z), (1, Y), (1.5, X), (2, W)
+        public virtual ICollection<FilterSectionOption> FilterSectionOptions { get; set; } // (0.5, Z), (1, Y), (1.5, X), (2, W)
     }
 }

@@ -10,5 +10,7 @@ namespace CopeID.Models.Filters
 
         [Required]
         public string PropertyName { get; set; }
+
+        public virtual FilterModel Model { get; set; }
     }
 }

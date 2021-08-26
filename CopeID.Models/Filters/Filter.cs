@@ -14,6 +14,6 @@ namespace CopeID.Models.Filters
 
         public virtual FilterModel Model { get; set; }
 
-        public virtual ICollection<FilterSection> Sections { get; set; }
+        public virtual ICollection<FilterSection> FilterSections { get; set; }
     }
 }
