@@ -12,14 +12,14 @@ using CopeID.QueryModels;
 
 namespace CopeID.API.Controllers
 {
-    public abstract class BaseEntityController<TEntity, TQueryModel, TService> : BaseApiController
+    public abstract class BaseEntityQueryableController<TEntity, TQueryModel, TService> : BaseApiController
         where TEntity : Entity
         where TQueryModel : EntityQueryModel<TEntity>
         where TService : IBaseEntityService<TEntity, TQueryModel>
     {
         protected readonly TService _entityService;
 
-        public BaseEntityController(TService entityService)
+        public BaseEntityQueryableController(TService entityService)
         {
             _entityService = entityService;
         }

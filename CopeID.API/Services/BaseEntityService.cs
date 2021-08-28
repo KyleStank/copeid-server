@@ -23,6 +23,8 @@ namespace CopeID.API.Services
         protected static readonly Type _entityType = typeof(TEntity);
         protected static readonly IEnumerable<PropertyInfo> _entityProperties = _entityType.GetProperties().AsEnumerable();
 
+        public CopeIdDbContext Context => _context;
+
         public BaseEntityService(CopeIdDbContext context)
         {
             _context = context;
@@ -90,6 +92,61 @@ namespace CopeID.API.Services
             TEntity result = _context.Remove(model)?.Entity ?? null;
             if (result != null) await _context.SaveChangesAsync();
             else throw new EntityNotDeletedException<TEntity>();
+        }
+
+        Task<List<TEntity>> IBaseEntityService<TEntity, TQueryModel>.GetAll()
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<List<TEntity>> IBaseEntityService<TEntity, TQueryModel>.GetAll(TQueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.GetTrackedAsync(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.GetTrackedAsync(Guid id, TQueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.GetUntrackedAsync(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.GetUntrackedAsync(Guid id, TQueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.Create(TEntity model)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.Create(TEntity model, TQueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.Update(TEntity model)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<TEntity> IBaseEntityService<TEntity, TQueryModel>.Update(TEntity model, TQueryModel queryModel)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task IBaseEntityService<TEntity, TQueryModel>.Delete(Guid id)
+        {
+            throw new NotImplementedException();
         }
     }
 }

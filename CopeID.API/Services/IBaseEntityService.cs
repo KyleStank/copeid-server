@@ -7,7 +7,7 @@ using CopeID.QueryModels;
 
 namespace CopeID.API.Services
 {
-    public interface IBaseEntityService<TEntity, TQueryModel>
+    public interface IBaseEntityService<TEntity, TQueryModel> : IBaseApiService
         where TEntity : Entity
         where TQueryModel : EntityQueryModel<TEntity>
     {
