@@ -4,7 +4,7 @@ using CopeID.QueryModels.Definitions;
 
 namespace CopeID.API.Services.Definitions
 {
-    public class DefinitionService : BaseEntityService<Definition, DefinitionQueryModel>, IDefinitionService
+    public class DefinitionService : BaseQueryableEntityService<Definition, DefinitionQueryModel>, IDefinitionService
     {
         public DefinitionService(CopeIdDbContext context) : base(context) { }
     }

@@ -3,5 +3,5 @@ using CopeID.QueryModels.Definitions;
 
 namespace CopeID.API.Services.Definitions
 {
-    public interface IDefinitionService : IBaseEntityService<Definition, DefinitionQueryModel> { }
+    public interface IDefinitionService : IBaseQueryableEntityService<Definition, DefinitionQueryModel> { }
 }

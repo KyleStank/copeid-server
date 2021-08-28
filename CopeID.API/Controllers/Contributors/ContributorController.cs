@@ -8,7 +8,7 @@ namespace CopeID.API.Controllers.Contributors
 {
     [ApiController]
     [Route("[controller]")]
-    public class ContributorController : BaseEntityController<Contributor, ContributorQueryModel, IContributorService>
+    public class ContributorController : BaseEntityQueryableController<Contributor, ContributorQueryModel, IContributorService>
     {
         public ContributorController(IContributorService contributorService) : base(contributorService)
         { }

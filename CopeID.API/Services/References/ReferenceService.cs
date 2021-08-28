@@ -4,7 +4,7 @@ using CopeID.QueryModels.References;
 
 namespace CopeID.API.Services.References
 {
-    public class ReferenceService : BaseEntityService<Reference, ReferenceQueryModel>, IReferenceService
+    public class ReferenceService : BaseQueryableEntityService<Reference, ReferenceQueryModel>, IReferenceService
     {
         public ReferenceService(CopeIdDbContext context) : base(context) { }
     }

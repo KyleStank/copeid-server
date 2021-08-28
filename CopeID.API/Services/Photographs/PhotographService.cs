@@ -4,7 +4,7 @@ using CopeID.QueryModels.Photographs;
 
 namespace CopeID.API.Services.Photographs
 {
-    public class PhotographService : BaseEntityService<Photograph, PhotographQueryModel>, IPhotographService
+    public class PhotographService : BaseQueryableEntityService<Photograph, PhotographQueryModel>, IPhotographService
     {
         public PhotographService(CopeIdDbContext context) : base(context) { }
     }

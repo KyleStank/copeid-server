@@ -15,7 +15,7 @@ namespace CopeID.API.Controllers
     public abstract class BaseEntityQueryableController<TEntity, TQueryModel, TService> : BaseApiController
         where TEntity : Entity
         where TQueryModel : EntityQueryModel<TEntity>
-        where TService : IBaseEntityService<TEntity, TQueryModel>
+        where TService : IBaseQueryableEntityService<TEntity, TQueryModel>
     {
         protected readonly TService _entityService;
 

@@ -8,7 +8,7 @@ namespace CopeID.API.Controllers.Genuses
 {
     [ApiController]
     [Route("[controller]")]
-    public class GenusController : BaseEntityController<Genus, GenusQueryModel, IGenusService>
+    public class GenusController : BaseEntityQueryableController<Genus, GenusQueryModel, IGenusService>
     {
         public GenusController(IGenusService genusService) : base(genusService)
         { }

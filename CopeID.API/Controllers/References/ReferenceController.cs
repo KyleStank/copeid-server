@@ -8,7 +8,7 @@ namespace CopeID.API.Controllers.References
 {
     [ApiController]
     [Route("[controller]")]
-    public class ReferenceController : BaseEntityController<Reference, ReferenceQueryModel, IReferenceService>
+    public class ReferenceController : BaseEntityQueryableController<Reference, ReferenceQueryModel, IReferenceService>
     {
         public ReferenceController(IReferenceService referenceService) : base(referenceService)
         { }
