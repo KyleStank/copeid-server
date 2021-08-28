@@ -7,9 +7,9 @@ namespace CopeID.API.Controllers.Filters
 {
     [ApiController]
     [Route("[controller]")]
-    public class FilterModelController : BaseEntityController<FilterModel, IFilterModelService>
+    public class FilterSectionController : BaseEntityController<FilterSection, IFilterSectionService>
     {
-        public FilterModelController(IFilterModelService filterModelService) : base(filterModelService)
+        public FilterSectionController(IFilterSectionService filterSectionService) : base(filterSectionService)
         { }
     }
 }

@@ -2,6 +2,6 @@
 
 namespace CopeID.API.Services.Filters
 {
-    public interface IFilterModelService : IBaseEntityService<FilterModel>
+    public interface IFilterSectionService : IBaseEntityService<FilterSection>
     { }
 }
