@@ -11,5 +11,7 @@ namespace CopeID.API.Controllers.Filters
     {
         public FilterModelPropertyController(IFilterModelPropertyService filterModelPropertyService) : base (filterModelPropertyService)
         { }
+
+
     }
 }
