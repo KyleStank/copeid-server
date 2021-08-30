@@ -23,16 +23,16 @@ namespace CopeID.API.Services
             _set = _context.Set<TEntity>();
         }
 
-        public async Task<List<TEntity>> GetAll() =>
+        public virtual async Task<List<TEntity>> GetAll() =>
             await _set.AsTracking().ToListAsync();
 
-        public async Task<TEntity> GetTrackedAsync(Guid id) =>
+        public virtual async Task<TEntity> GetTrackedAsync(Guid id) =>
             await FindEntityAsync(id, _set.AsTracking());
 
-        public async Task<TEntity> GetUntrackedAsync(Guid id) =>
+        public virtual async Task<TEntity> GetUntrackedAsync(Guid id) =>
             await FindEntityAsync(id, _set.AsNoTracking());
 
-        protected async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> existingQuery = null)
+        protected virtual async Task<TEntity> FindEntityAsync(Guid id, IQueryable<TEntity> existingQuery = null)
         {
             IQueryable<TEntity> query = existingQuery != null ? existingQuery : _set.AsQueryable();
             TEntity result = await query.Where(x => x.Id == id).FirstOrDefaultAsync();
@@ -41,16 +41,16 @@ namespace CopeID.API.Services
             return result;
         }
 
-        public async Task<TEntity> Create(TEntity model)
+        public virtual async Task<TEntity> Create(TEntity model)
         {
             TEntity result = (await _context.AddAsync(model))?.Entity ?? null;
             if (result != null) await _context.SaveChangesAsync();
             else throw new EntityNotCreatedException<TEntity>();
 
-            return await GetUntrackedAsync(result.Id);
+            return result;
         }
 
-        public async Task<TEntity> Update(TEntity model)
+        public virtual async Task<TEntity> Update(TEntity model)
         {
             if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException<TEntity>();
 
@@ -58,10 +58,10 @@ namespace CopeID.API.Services
             if (result != null) await _context.SaveChangesAsync();
             else throw new EntityNotUpdatedException<TEntity>();
 
-            return await GetUntrackedAsync(result.Id);
+            return result;
         }
 
-        public async Task Delete(Guid id)
+        public virtual async Task Delete(Guid id)
         {
             TEntity model = await GetUntrackedAsync(id);
             if (model == null) throw new EntityNotFoundException<TEntity>();
