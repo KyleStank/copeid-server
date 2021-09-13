@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace CopeID.Models.Filters
 {
-    public class FilterSectionOption : Entity
+    public class FilterSectionPart : Entity
     {
         [Required]
         public Guid FilterSectionId { get; set; }
@@ -11,12 +12,8 @@ namespace CopeID.Models.Filters
         [Required]
         public string DisplayName { get; set; }
 
-        [Required]
-        public string Code { get; set; }
-
-        [Required]
-        public string Value { get; set; } // 0.5
-
         public virtual FilterSection FilterSection { get; set; }
+
+        public virtual ICollection<FilterSectionPartOption> FilterSectionPartOptions { get; set; }
     }
 }

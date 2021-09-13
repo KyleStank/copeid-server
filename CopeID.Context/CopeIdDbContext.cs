@@ -24,7 +24,9 @@ namespace CopeID.Context
 
         public DbSet<FilterSection> FilterSections { get; set; }
 
-        public DbSet<FilterSectionOption> FilterSectionOptions { get; set; }
+        public DbSet<FilterSectionPart> FilterSectionParts { get; set; }
+
+        public DbSet<FilterSectionPartOption> FilterSectionPartOptions { get; set; }
 
         public DbSet<Genus> Genuses { get; set; }
 

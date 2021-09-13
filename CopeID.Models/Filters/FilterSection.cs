@@ -11,14 +11,14 @@ namespace CopeID.Models.Filters
 
         public Guid? FilterModelPropertyId { get; set; }
 
-        public string Code { get; set; } // L
+        public string Code { get; set; }
 
-        public string DisplayName { get; set; } // Length of Specimen (mm)
+        public string DisplayName { get; set; }
 
         public virtual Filter Filter { get; set; }
 
         public virtual FilterModelProperty FilterModelProperty { get; set; }
 
-        public virtual ICollection<FilterSectionOption> FilterSectionOptions { get; set; } // (0.5, Z), (1, Y), (1.5, X), (2, W)
+        public virtual ICollection<FilterSectionPart> FilterSectionParts { get; set; }
     }
 }

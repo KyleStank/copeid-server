@@ -66,7 +66,8 @@ namespace CopeID.API
             services.AddScoped<IFilterModelService, FilterModelService>();
             services.AddScoped<IFilterModelPropertyService, FilterModelPropertyService>();
             services.AddScoped<IFilterSectionService, FilterSectionService>();
-            services.AddScoped<IFilterSectionOptionService, FilterSectionOptionService>();
+            services.AddScoped<IFilterSectionPartService, FilterSectionPartService>();
+            services.AddScoped<IFilterSectionPartOptionService, FilterSectionPartOptionService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
