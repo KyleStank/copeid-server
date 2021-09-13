@@ -7,18 +7,18 @@ using CopeID.Models.Filters;
 
 namespace CopeID.QueryModels.Filters
 {
-    public class FilterQueryModel : EntityQueryModel<Filter>
+    public class FilterModelPropertyQueryModel : EntityQueryModel<FilterModelProperty>
     {
         [FromQuery]
         public Guid[] FilterModelId { get; set; } = null;
 
         [FromQuery]
-        public string[] DisplayName { get; set; } = null;
+        public string[] PropertyName { get; set; } = null;
 
-        protected override IQueryable<Filter> GetCustomQuery(IQueryable<Filter> query)
+        protected override IQueryable<FilterModelProperty> GetCustomQuery(IQueryable<FilterModelProperty> query)
         {
             if (FilterModelId != null) query = query.Where(e => FilterModelId.Contains(e.FilterModelId));
-            if (DisplayName != null) query = query.Where(e => DisplayName.Contains(e.DisplayName));
+            if (PropertyName != null) query = query.Where(e => PropertyName.Contains(e.PropertyName));
 
             return query;
         }

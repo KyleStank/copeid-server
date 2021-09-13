@@ -10,10 +10,11 @@ using CopeID.Core.Exceptions;
 using CopeID.Context;
 using CopeID.Models;
 using CopeID.Models.Filters;
+using CopeID.QueryModels.Filters;
 
 namespace CopeID.API.Services.Filters
 {
-    public class FilterModelService : BaseEntityService<FilterModel>, IFilterModelService
+    public class FilterModelService : BaseQueryableEntityService<FilterModel, FilterModelQueryModel>, IFilterModelService
     {
         protected readonly static Type _entityType = typeof(Entity);
 

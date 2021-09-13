@@ -8,12 +8,13 @@ using Microsoft.AspNetCore.Http;
 using CopeID.API.Services.Filters;
 using CopeID.Core.Exceptions;
 using CopeID.Models.Filters;
+using CopeID.QueryModels.Filters;
 
 namespace CopeID.API.Controllers.Filters
 {
     [ApiController]
     [Route("[controller]")]
-    public class FilterController : BaseEntityController<Filter, IFilterService>
+    public class FilterController : BaseEntityQueryableController<Filter, FilterQueryModel, IFilterService>
     {
         public FilterController(IFilterService filterService) : base(filterService)
         { }
