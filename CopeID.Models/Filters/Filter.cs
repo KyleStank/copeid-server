@@ -12,7 +12,7 @@ namespace CopeID.Models.Filters
         [Required]
         public string DisplayName { get; set; }
 
-        public virtual FilterModel Model { get; set; }
+        public virtual FilterModel FilterModel { get; set; }
 
         public virtual ICollection<FilterSection> FilterSections { get; set; }
     }
