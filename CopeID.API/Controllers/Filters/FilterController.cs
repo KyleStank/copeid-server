@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Mvc;
@@ -27,8 +25,8 @@ namespace CopeID.API.Controllers.Filters
         {
             try
             {
-                IEnumerable<FilterSection> properties = await _entityService.GetSections(id);
-                return Ok(properties);
+                IEnumerable<FilterSection> sections = await _entityService.GetSections(id);
+                return Ok(sections);
             }
             catch (EntityNotFoundException<FilterSection> notFoundException)
             {
