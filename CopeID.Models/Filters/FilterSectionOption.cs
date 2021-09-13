@@ -12,6 +12,9 @@ namespace CopeID.Models.Filters
         public string DisplayName { get; set; }
 
         [Required]
+        public string Code { get; set; }
+
+        [Required]
         public string Value { get; set; } // 0.5
 
         public virtual FilterSection FilterSection { get; set; }
