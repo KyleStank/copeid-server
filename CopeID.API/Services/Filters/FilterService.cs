@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -25,14 +26,15 @@ namespace CopeID.API.Services.Filters
                 .AsNoTracking()
                 .Include(x => x.FilterModelProperties)
                 .FirstOrDefaultAsync(x => x.TypeName == specimenTypeName);
-
-            Filter specimenFilter = await _set
-                .AsNoTracking()
-                .Include(x => x.FilterModel).ThenInclude(x => x.FilterModelProperties)
-                .Include(x => x.FilterSections).ThenInclude(x => x.FilterSectionParts).ThenInclude(x => x.FilterSectionPartOptions)
-                .FirstOrDefaultAsync(x => x.FilterModelId == specimenFilterModel.Id);
-
-            return specimenFilter;
+            
+            IQueryable<Filter> query = _set.AsNoTracking()
+                .OrderBy(x => x.DisplayName)
+                .Include(x => x.FilterModel)
+                    .ThenInclude(x => x.FilterModelProperties.OrderBy(p => p.PropertyName))
+                .Include(x => x.FilterSections.OrderBy(p => p.DisplayName))
+                    .ThenInclude(x => x.FilterSectionParts.OrderBy(p => p.DisplayName))
+                        .ThenInclude(x => x.FilterSectionPartOptions.OrderBy(p => p.DisplayName));
+            return await query.FirstOrDefaultAsync(x => x.FilterModelId == specimenFilterModel.Id);
         }
     }
 }
