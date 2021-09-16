@@ -93,17 +93,18 @@ namespace CopeID.API.Services.Filters
                     })
                     .ToList();
 
-                FilterModelProperty filterModelProperty = filterModelProperties.First(p => p.Id == filterSection.FilterModelPropertyId);
-                PropertyInfo modelPropertyInfo = modelType.GetProperty(filterModelProperty.PropertyName);
+                // TODO: Fix after FilterSectionPart has a property ID instead of FilterSection
+                //FilterModelProperty filterModelProperty = filterModelProperties.First(p => p.Id == filterSection.FilterModelPropertyId);
+                //PropertyInfo modelPropertyInfo = modelType.GetProperty(filterModelProperty.PropertyName);
 
-                var opts = filterSectionParts.Select(p => new
-                {
-                    Options = p.FilterSectionPartOptions.Select(o => new
-                    {
-                        Code = o.Code,
-                        Value = o.Value
-                    })
-                });
+                //var opts = filterSectionParts.Select(p => new
+                //{
+                //    Options = p.FilterSectionPartOptions.Select(o => new
+                //    {
+                //        Code = o.Code,
+                //        Value = o.Value
+                //    })
+                //});
 
                 //props.Add(modelPropertyInfo);
             }

@@ -9,10 +9,14 @@ namespace CopeID.Models.Filters
         [Required]
         public Guid FilterSectionId { get; set; }
 
+        public Guid? FilterModelPropertyId { get; set; }
+
         [Required]
         public string DisplayName { get; set; }
 
         public virtual FilterSection FilterSection { get; set; }
+
+        public virtual FilterModelProperty FilterModelProperty { get; set; }
 
         public virtual ICollection<FilterSectionPartOption> FilterSectionPartOptions { get; set; }
     }
