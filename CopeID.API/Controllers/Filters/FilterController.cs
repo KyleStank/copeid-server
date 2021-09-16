@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using CopeID.API.Services.Filters;
+using CopeID.API.ViewModels;
 using CopeID.Models.Filters;
 using CopeID.QueryModels.Filters;
 
@@ -22,6 +23,14 @@ namespace CopeID.API.Controllers.Filters
         {
             Filter specimenFilter = await _entityService.GetSpecimenFilter();
             return Ok(specimenFilter);
+        }
+
+        [HttpPost("Result")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async virtual Task<IActionResult> GetFilterResult([FromBody] FilterResultRequestViewModel resultRequest)
+        {
+            var result = await _entityService.FilterResults(resultRequest);
+            return Ok(result);
         }
     }
 }
