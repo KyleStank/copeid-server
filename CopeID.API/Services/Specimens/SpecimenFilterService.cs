@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.API.FilterModels;
 using CopeID.Context;
 using CopeID.Models.Specimens;
 
@@ -23,10 +22,10 @@ namespace CopeID.API.Services.Specimens
 
         public async Task<object> FilterForObject(object obj)
         {
-            return await FilterForEntity(obj as Specimen);
+            return await FilterForEntity(obj as SpecimenFilterModel);
         }
 
-        public async Task<Specimen> FilterForEntity(Specimen model)
+        public async Task<Specimen> FilterForEntity(SpecimenFilterModel model)
         {
             IQueryable<Specimen> query = _set
                 .AsNoTracking()

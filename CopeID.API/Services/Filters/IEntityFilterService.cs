@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 
+using CopeID.API.FilterModels;
 using CopeID.Models;
 
 namespace CopeID.API.Services.Filters
 {
-    public interface IEntityFilterService<TEntity> : ICustomFilterService where TEntity : Entity
+    public interface IEntityFilterService<TEntity, TEntityFilter> : ICustomFilterService
+        where TEntity : Entity
+        where TEntityFilter : IFilterModel
     {
-        Task<TEntity> FilterForEntity(TEntity model);
+        Task<TEntity> FilterForEntity(TEntityFilter model);
     }
 }

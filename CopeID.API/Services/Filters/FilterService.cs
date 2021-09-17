@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.API.FilterModels;
 using CopeID.API.ViewModels;
 using CopeID.Context;
 using CopeID.Models;
@@ -50,7 +52,11 @@ namespace CopeID.API.Services.Filters
         private readonly IEnumerable<Type> _entityTypes = Assembly.GetAssembly(typeof(Entity)).ExportedTypes
             .AsEnumerable();
         private readonly IEnumerable<Type> _filterServiceTypes = Assembly.GetAssembly(typeof(ICustomFilterService)).ExportedTypes
-            .Where(t => t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ICustomFilterService)) && !t.IsGenericType && t.IsInterface).AsEnumerable();
+            .Where(t => t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(ICustomFilterService)) && !t.IsGenericType && t.IsInterface)
+            .AsEnumerable();
+        private readonly IEnumerable<Type> _filterModelTypes = Assembly.GetAssembly(typeof(IFilterModel)).ExportedTypes
+            .Where(t => t.GetTypeInfo().ImplementedInterfaces.Contains(typeof(IFilterModel)) && t.IsClass && !t.IsAbstract)
+            .AsEnumerable();
 
         private readonly IServiceProvider _serviceProvider;
 
@@ -128,15 +134,13 @@ namespace CopeID.API.Services.Filters
                 codeResults.Add(new FilterSectionCodeResult(filterSection.Code, parts));
             }
 
-            // Find system Type and filter service based on values found above.
+            // Find system Type and custom filter model types based on values found above.
             Type modelType = _entityTypes.First(t => t.FullName == filterModel.TypeName);
-            Type modelFilterSerivceType = _filterServiceTypes.First(t => t.FullName.Contains(modelType.Name));
-            ICustomFilterService modelFilterService = (ICustomFilterService)_serviceProvider.GetService(modelFilterSerivceType);
+            Type filterModelType = _filterModelTypes.First(t => t.BaseType == modelType);
 
-            Entity objInstance = (Entity)Activator.CreateInstance(modelType);
-            objInstance.Id = Guid.Empty;
-
-            var codeResultPropNames = codeResults.Select(r =>
+            // Create instance of the type specified from the filter model.
+            Entity objInstance = (Entity)Activator.CreateInstance(filterModelType);
+            IEnumerable<IEnumerable<FilterPropertyValueResult>> codeResultPropNames = codeResults.Select(r =>
                 r.Values.Select(v => new FilterPropertyValueResult
                 {
                     Value = v.Value,
@@ -144,32 +148,43 @@ namespace CopeID.API.Services.Filters
                 })
             );
 
-            var props = objInstance.GetType().GetRuntimeProperties();
+            // Find all properties of object instance and set value of each based on selected options.
+            IEnumerable<PropertyInfo> modelDeclaredTypes = modelType.GetProperties();
+            IEnumerable<PropertyInfo> filterDeclaredTypes = objInstance.GetType().GetProperties().Where(p => p.DeclaringType == filterModelType);
+            IEnumerable<PropertyInfo> props = modelDeclaredTypes.Select(p =>
+            {
+                PropertyInfo filterProp = filterDeclaredTypes.FirstOrDefault(x => x.Name == p.Name);
+                if (filterProp != null) return filterProp;
+                return p;
+            });
             foreach (var prop in props)
             {
-                FilterPropertyValueResult valueResult = codeResultPropNames.Where(x => x.Any(p => p.PropertyName == prop.Name)).Select(p =>
+                // Convert results from above to only its string value.
+                string resultValue = codeResultPropNames.Where(x => x.Any(p => p.PropertyName == prop.Name)).Select(p =>
                 {
                     var value = p.FirstOrDefault(x => x.PropertyName == prop.Name);
-                    return value;
+                    return value.Value;
                 }).FirstOrDefault();
-                if (valueResult == null) continue;
+                if (resultValue == null) continue;
 
+                // Find the set method and its parameters of the current property.
                 MethodInfo setMethod = prop.SetMethod;
                 ParameterInfo[] setMethodParams = setMethod.GetParameters();
                 if (setMethodParams.Length == 0) continue;
 
-                object[] invokeArgs = null;
                 Type parameterType = setMethodParams[0].ParameterType;
-                if (parameterType == valueResult.Value.GetType()) invokeArgs = new object[] { valueResult.Value };
-                else if (parameterType == typeof(Guid)) invokeArgs = new object[] { Guid.Parse(valueResult.Value) };
-                else if (parameterType == typeof(int)) invokeArgs = new object[] { int.Parse(valueResult.Value) };
-                else if (parameterType == typeof(double)) invokeArgs = new object[] { double.Parse(valueResult.Value) };
-                else if (parameterType == typeof(float)) invokeArgs = new object[] { float.Parse(valueResult.Value) };
-                else if (parameterType == typeof(bool)) invokeArgs = new object[] { bool.Parse(valueResult.Value) };
+                Type nullableParameterType = Nullable.GetUnderlyingType(parameterType);
+                Type comparisionType = nullableParameterType ?? parameterType;
 
+                // Dynamically convert the string property value to the correct type value and invoke the set method.
+                TypeConverter converter = TypeDescriptor.GetConverter(comparisionType);
+                object[] invokeArgs = new object[] { converter.ConvertFrom(resultValue) };
                 if (invokeArgs != null) setMethod.Invoke(objInstance, invokeArgs);
             }
 
+            // Find correct filter service and invoke filter method to return result of filtered items.
+            Type modelFilterSerivceType = _filterServiceTypes.First(t => t.FullName.Contains(modelType.Name));
+            ICustomFilterService modelFilterService = (ICustomFilterService)_serviceProvider.GetService(modelFilterSerivceType);
             return await modelFilterService.FilterForObject(objInstance);
         }
     }
