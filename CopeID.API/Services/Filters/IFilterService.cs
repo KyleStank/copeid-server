@@ -10,6 +10,6 @@ namespace CopeID.API.Services.Filters
     {
         Task<Filter> GetSpecimenFilter();
 
-        Task<string> FilterResults(FilterResultRequestViewModel resultRequest);
+        Task<object> FilterResults(FilterResultRequestViewModel resultRequest);
     }
 }
