@@ -86,9 +86,9 @@ namespace CopeID.API.Services.Filters
                 .OrderBy(x => x.DisplayName)
                 .Include(x => x.FilterModel)
                     .ThenInclude(x => x.FilterModelProperties.OrderBy(p => p.PropertyName))
-                .Include(x => x.FilterSections.OrderBy(p => p.DisplayName))
-                    .ThenInclude(x => x.FilterSectionParts.OrderBy(p => p.DisplayName))
-                        .ThenInclude(x => x.FilterSectionPartOptions.OrderBy(p => p.DisplayName))
+                .Include(x => x.FilterSections.OrderBy(p => p.Order))
+                    .ThenInclude(x => x.FilterSectionParts.OrderBy(p => p.Order))
+                        .ThenInclude(x => x.FilterSectionPartOptions.OrderBy(p => p.Order))
                 .AsSplitQuery();
             return await query.FirstOrDefaultAsync(x => x.FilterModelId == specimenFilterModel.Id);
         }
@@ -112,7 +112,7 @@ namespace CopeID.API.Services.Filters
                 FilterSection filterSection = await _filterSectionSet
                     .AsNoTracking()
                     .Include(s => s.FilterSectionParts).ThenInclude(p => p.FilterSectionPartOptions)
-                    .OrderBy(s => s.DisplayName)
+                    .OrderBy(s => s.Order)
                     .AsSplitQuery()
                     .FirstOrDefaultAsync(s => s.Id == result.SectionId);
 

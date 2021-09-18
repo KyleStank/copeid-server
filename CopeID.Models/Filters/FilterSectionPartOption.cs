@@ -9,6 +9,9 @@ namespace CopeID.Models.Filters
         public Guid FilterSectionPartId { get; set; }
 
         [Required]
+        public int Order { get; set; }
+
+        [Required]
         public string DisplayName { get; set; }
 
         [Required]
