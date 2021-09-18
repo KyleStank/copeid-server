@@ -7,6 +7,8 @@ namespace CopeID.Models.Specimens
 {
     public class Specimen : Entity
     {
+        #region Basic Information
+
         public Guid GenusId { get; set; }
         public virtual Genus Genus { get; set; }
 
@@ -19,22 +21,80 @@ namespace CopeID.Models.Specimens
 
         public string SpecialCharacteristics { get; set; }
 
+        #endregion
+
+        #region Antenule
+
+        public string AntenuleDescription { get; set; }
+
         public string Antenule { get; set; }
+
+        #endregion
+
+        #region Rostrum
+
+        public string RostrumDescription { get; set; }
 
         public string Rostrum { get; set; }
 
+        #endregion
+
+        #region Body Shape
+
+        public string BodyShapeDescription { get; set; }
+
         public string BodyShape { get; set; }
 
-        public string Eyes { get; set; }
+        #endregion
 
-        public string Cephalosome { get; set; }
+        #region Eyes
 
-        public string Thorax { get; set; }
+        public string EyesDescription { get; set; }
 
-        public string Urosome { get; set; }
+        public SpecimenEyes? Eyes { get; set; }
 
-        public string Furca { get; set; }
+        #endregion
 
-        public string Setea { get; set; }
+        #region Cephalosome
+
+        public string CephalosomeDescription { get; set; }
+
+        public int? Cephalosome { get; set; }
+
+        #endregion
+
+        #region Thorax
+
+        public string ThoraxDescription { get; set; }
+
+        public SpecimenThoraxSegments? ThoraxSegments { get; set; }
+
+        public SpecimenThoraxShape? ThoraxShape { get; set; }
+
+        #endregion
+
+        #region Urosome
+
+        public string UrosomeDescription { get; set; }
+
+        public int? Urosome { get; set; }
+
+        #endregion
+
+        #region Furca
+
+        public string FurcaDescription { get; set; }
+
+        public SpecimenFurca? Furca { get; set; }
+
+        #endregion
+
+        #region Setea
+
+        public string SeteaDescription { get; set; }
+
+        public SpecimenSetea? Setea { get; set; }
+
+        #endregion
     }
 }
