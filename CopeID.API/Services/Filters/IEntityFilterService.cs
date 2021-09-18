@@ -9,6 +9,6 @@ namespace CopeID.API.Services.Filters
         where TEntity : Entity
         where TEntityFilter : IFilterModel
     {
-        Task<TEntity> FilterForEntity(TEntityFilter model);
+        Task<TEntity[]> FilterForEntity(TEntityFilter model);
     }
 }

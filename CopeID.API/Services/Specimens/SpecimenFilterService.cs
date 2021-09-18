@@ -25,7 +25,7 @@ namespace CopeID.API.Services.Specimens
             return await FilterForEntity(obj as SpecimenFilterModel);
         }
 
-        public async Task<Specimen> FilterForEntity(SpecimenFilterModel model)
+        public async Task<Specimen[]> FilterForEntity(SpecimenFilterModel model)
         {
             IQueryable<Specimen> query = _set
                 .AsNoTracking()
@@ -37,7 +37,7 @@ namespace CopeID.API.Services.Specimens
                     && (model.GenusId == default || s.GenusId == model.GenusId)
                     && (model.PhotographId == default || s.PhotographId == model.PhotographId)
                     && (model.Gender == default || s.Gender == model.Gender)
-                    && (model.Length == default || s.Length == model.Length)
+                    && (model.Length == default || s.Length <= model.Length)
                     && (model.SpecialCharacteristics == default || s.SpecialCharacteristics == model.SpecialCharacteristics)
 
                     // Antenule
@@ -81,7 +81,7 @@ namespace CopeID.API.Services.Specimens
                 .Include(s => s.Photograph)
                 .AsSplitQuery();
 
-            return await query.FirstOrDefaultAsync();
+            return await query.ToArrayAsync();
         }
     }
 }
