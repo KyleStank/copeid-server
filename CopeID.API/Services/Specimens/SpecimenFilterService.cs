@@ -20,12 +20,12 @@ namespace CopeID.API.Services.Specimens
             _set = _context.Set<Specimen>();
         }
 
-        public async Task<object> FilterForObject(object obj)
+        public async Task<object[]> FilterForResults(IFilterModel filterModel)
         {
-            return await FilterForEntity(obj as SpecimenFilterModel);
+            return await FilterForEntities(filterModel as SpecimenFilterModel);
         }
 
-        public async Task<Specimen[]> FilterForEntity(SpecimenFilterModel model)
+        public async Task<Specimen[]> FilterForEntities(SpecimenFilterModel model)
         {
             IQueryable<Specimen> query = _set
                 .AsNoTracking()
@@ -76,11 +76,7 @@ namespace CopeID.API.Services.Specimens
                     // Setea
                     && (model.SeteaDescription == default || s.SeteaDescription == model.SeteaDescription)
                     && (model.Setea == default || s.Setea == model.Setea)
-                )
-                .Include(s => s.Genus)
-                .Include(s => s.Photograph)
-                .AsSplitQuery();
-
+                );
             return await query.ToArrayAsync();
         }
     }

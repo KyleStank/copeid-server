@@ -21,9 +21,9 @@ namespace CopeID.API.Services.Filters
     {
         public string SectionCode { get; set; }
 
-        public IEnumerable<FilterValueCodeResult> Values { get; set; }
+        public FilterValueCodeResult[] Values { get; set; }
 
-        public FilterSectionCodeResult(string section, IEnumerable<FilterValueCodeResult> values)
+        public FilterSectionCodeResult(string section, FilterValueCodeResult[] values)
         {
             SectionCode = section;
             Values = values;
@@ -44,6 +44,19 @@ namespace CopeID.API.Services.Filters
         public string Value { get; set; }
 
         public string PropertyName { get; set; }
+    }
+
+    public class FinalFilterResult
+    {
+        public Guid[] FilteredIds { get; set; }
+
+        public string FormattedCode { get; set; }
+
+        public FinalFilterResult(Guid[] filteredIds, string formattedCode)
+        {
+            FilteredIds = filteredIds;
+            FormattedCode = formattedCode;
+        }
     }
 
     // TODO: Holy spagetti, refactor this already.
@@ -106,7 +119,7 @@ namespace CopeID.API.Services.Filters
             return specimenFilter;
         }
 
-        public async Task<object> FilterResults(FilterResultRequestViewModel resultRequest)
+        public async Task<FinalFilterResult> FilterResults(FilterResultRequestViewModel resultRequest)
         {
             // Find filter, filter model, and filter model properties.
             Filter filter = await _set.AsNoTracking()
@@ -130,7 +143,7 @@ namespace CopeID.API.Services.Filters
                     .FirstOrDefaultAsync(s => s.Id == result.SectionId);
 
                 FilterOptionValueViewModel[] optionValues = result.OptionValues;
-                var parts = filterSection.FilterSectionParts
+                FilterValueCodeResult[] parts = filterSection.FilterSectionParts
                     .Where(p => optionValues.Any(v => p.Id == v.PartId))
                     .Select(p =>
                     {
@@ -141,8 +154,7 @@ namespace CopeID.API.Services.Filters
                             Value = option.Value,
                             FilterModelProperty = filterModelProperties.First(x => x.Id == p.FilterModelPropertyId)
                         };
-                    })
-                    .AsEnumerable();
+                    }).ToArray();
 
                 codeResults.Add(new FilterSectionCodeResult(filterSection.Code, parts));
             }
@@ -152,7 +164,7 @@ namespace CopeID.API.Services.Filters
             Type filterModelType = _filterModelTypes.First(t => t.BaseType == modelType);
 
             // Create instance of the type specified from the filter model.
-            Entity objInstance = (Entity)Activator.CreateInstance(filterModelType);
+            IFilterModel objInstance = (IFilterModel)Activator.CreateInstance(filterModelType);
             IEnumerable<IEnumerable<FilterPropertyValueResult>> codeResultPropNames = codeResults.Select(r =>
                 r.Values.Select(v => new FilterPropertyValueResult
                 {
@@ -170,12 +182,12 @@ namespace CopeID.API.Services.Filters
                 if (filterProp != null) return filterProp;
                 return p;
             });
-            foreach (var prop in props)
+            foreach (PropertyInfo prop in props)
             {
                 // Convert results from above to only its string value.
                 string resultValue = codeResultPropNames.Where(x => x.Any(p => p.PropertyName == prop.Name)).Select(p =>
                 {
-                    var value = p.FirstOrDefault(x => x.PropertyName == prop.Name);
+                    FilterPropertyValueResult value = p.FirstOrDefault(x => x.PropertyName == prop.Name);
                     return value.Value;
                 }).FirstOrDefault();
                 if (resultValue == null) continue;
@@ -198,7 +210,34 @@ namespace CopeID.API.Services.Filters
             // Find correct filter service and invoke filter method to return result of filtered items.
             Type modelFilterSerivceType = _filterServiceTypes.First(t => t.FullName.Contains(modelType.Name));
             ICustomFilterService modelFilterService = (ICustomFilterService)_serviceProvider.GetService(modelFilterSerivceType);
-            return await modelFilterService.FilterForObject(objInstance);
+            object[] filteredResults = await modelFilterService.FilterForResults(objInstance);
+
+            try
+            {
+                // Create formatted code.
+                string formattedCode = "";
+                for (int i = 0; i < codeResults.Count; i++)
+                {
+                    // Append section code.
+                    FilterSectionCodeResult codeResult = codeResults[i];
+                    formattedCode += codeResult.SectionCode;
+
+                    // Append code for each value.
+                    FilterValueCodeResult[] values = codeResult.Values;
+                    for (int j = 0; j < values.Length; j++) formattedCode += values[j].Code;
+
+                    // Append seperator.
+                    if (i < codeResults.Count - 1) formattedCode += "-";
+                }
+
+                // Get array of filtered result IDs and return final result.
+                Entity[] filteredEntities = (Entity[])filteredResults;
+                return new FinalFilterResult(filteredEntities.Select(e => e.Id).ToArray(), formattedCode);
+            }
+            catch
+            {
+                throw;
+            }
         }
     }
 }
