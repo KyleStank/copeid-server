@@ -81,16 +81,29 @@ namespace CopeID.API.Services.Filters
             FilterModel specimenFilterModel = await _filterModelSet.AsNoTracking()
                 .Include(x => x.FilterModelProperties)
                 .FirstOrDefaultAsync(x => x.TypeName == specimenTypeName);
-            
-            IQueryable<Filter> query = _set.AsNoTracking()
+
+            Filter specimenFilter = await _set.AsNoTracking()
                 .OrderBy(x => x.DisplayName)
                 .Include(x => x.FilterModel)
-                    .ThenInclude(x => x.FilterModelProperties.OrderBy(p => p.PropertyName))
-                .Include(x => x.FilterSections.OrderBy(p => p.Order))
-                    .ThenInclude(x => x.FilterSectionParts.OrderBy(p => p.Order))
-                        .ThenInclude(x => x.FilterSectionPartOptions.OrderBy(p => p.Order))
-                .AsSplitQuery();
-            return await query.FirstOrDefaultAsync(x => x.FilterModelId == specimenFilterModel.Id);
+                    .ThenInclude(x => x.FilterModelProperties)
+                .Include(x => x.FilterSections)
+                    .ThenInclude(x => x.FilterSectionParts)
+                        .ThenInclude(x => x.FilterSectionPartOptions)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(f => f.FilterModelId == specimenFilterModel.Id);
+
+            specimenFilter.FilterModel.FilterModelProperties = specimenFilter.FilterModel.FilterModelProperties.OrderBy(p => p.PropertyName).ToArray();
+            specimenFilter.FilterSections = specimenFilter.FilterSections.OrderBy(s => s.Order).Select(s =>
+            {
+                s.FilterSectionParts = s.FilterSectionParts.OrderBy(p => p.Order).Select(p =>
+                {
+                    p.FilterSectionPartOptions = p.FilterSectionPartOptions.OrderBy(o => o.Order).ToArray();
+                    return p;
+                }).ToArray();
+                return s;
+            }).ToArray();
+
+            return specimenFilter;
         }
 
         public async Task<object> FilterResults(FilterResultRequestViewModel resultRequest)
