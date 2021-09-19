@@ -76,7 +76,10 @@ namespace CopeID.API.Services.Specimens
                     // Setea
                     && (model.SeteaDescription == default || s.SeteaDescription == model.SeteaDescription)
                     && (model.Setea == default || s.Setea == model.Setea)
-                );
+                )
+                .Include(s => s.Genus)
+                .Include(s => s.Photograph)
+                .AsSplitQuery();
             return await query.ToArrayAsync();
         }
     }

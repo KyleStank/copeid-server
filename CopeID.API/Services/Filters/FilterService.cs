@@ -48,13 +48,13 @@ namespace CopeID.API.Services.Filters
 
     public class FinalFilterResult
     {
-        public Guid[] FilteredIds { get; set; }
+        public object[] FilteredResults { get; set; }
 
         public string FormattedCode { get; set; }
 
-        public FinalFilterResult(Guid[] filteredIds, string formattedCode)
+        public FinalFilterResult(object[] filteredResults, string formattedCode)
         {
-            FilteredIds = filteredIds;
+            FilteredResults = filteredResults;
             FormattedCode = formattedCode;
         }
     }
@@ -214,7 +214,7 @@ namespace CopeID.API.Services.Filters
 
             try
             {
-                // Create formatted code.
+                // Create formatted code and return the final filtered results.
                 string formattedCode = "";
                 for (int i = 0; i < codeResults.Count; i++)
                 {
@@ -222,17 +222,14 @@ namespace CopeID.API.Services.Filters
                     FilterSectionCodeResult codeResult = codeResults[i];
                     formattedCode += codeResult.SectionCode;
 
-                    // Append code for each value.
+                    // Append each selected option's code.
                     FilterValueCodeResult[] values = codeResult.Values;
                     for (int j = 0; j < values.Length; j++) formattedCode += values[j].Code;
 
                     // Append seperator.
                     if (i < codeResults.Count - 1) formattedCode += "-";
                 }
-
-                // Get array of filtered result IDs and return final result.
-                Entity[] filteredEntities = (Entity[])filteredResults;
-                return new FinalFilterResult(filteredEntities.Select(e => e.Id).ToArray(), formattedCode);
+                return new FinalFilterResult((Entity[])filteredResults, formattedCode);
             }
             catch
             {
