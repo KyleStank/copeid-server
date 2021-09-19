@@ -38,6 +38,7 @@ namespace CopeID.API.Services.Specimens
                     && (model.PhotographId == default || s.PhotographId == model.PhotographId)
                     && (model.Gender == default || s.Gender == model.Gender)
                     && (model.Length == default || s.Length <= model.Length)
+                    && (model.Summary == default || s.Summary == model.Summary)
                     && (model.SpecialCharacteristics == default || s.SpecialCharacteristics == model.SpecialCharacteristics)
 
                     // Antenule

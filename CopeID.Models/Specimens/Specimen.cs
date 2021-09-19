@@ -19,6 +19,8 @@ namespace CopeID.Models.Specimens
 
         public float Length { get; set; }
 
+        public string Summary { get; set; }
+
         public string SpecialCharacteristics { get; set; }
 
         #endregion

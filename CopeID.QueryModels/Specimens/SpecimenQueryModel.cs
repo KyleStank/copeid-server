@@ -24,6 +24,9 @@ namespace CopeID.QueryModels.Specimens
         public float[] Length { get; set; } = null;
 
         [FromQuery]
+        public string[] Summary { get; set; } = null;
+
+        [FromQuery]
         public string[] SpecialCharacteristics { get; set; } = null;
 
         #endregion
@@ -128,6 +131,7 @@ namespace CopeID.QueryModels.Specimens
             if (PhotographId != null) query = query.Where(e => PhotographId.Contains(e.PhotographId));
             if (Gender != null) query = query.Where(e => Gender.Contains(e.Gender));
             if (Length != null) query = query.Where(e => Length.Contains(e.Length));
+            if (Summary != null) query = query.Where(e => Summary.Contains(e.Summary));
             if (SpecialCharacteristics != null) query = query.Where(e => SpecialCharacteristics.Contains(e.SpecialCharacteristics));
 
             // Antenule
