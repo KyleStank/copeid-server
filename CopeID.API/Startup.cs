@@ -16,6 +16,7 @@ using CopeID.API.Configurations;
 using CopeID.API.Services.AzureStorage;
 using CopeID.API.Services.Contributors;
 using CopeID.API.Services.Definitions;
+using CopeID.API.Services.Files;
 using CopeID.API.Services.Filters;
 using CopeID.API.Services.Genuses;
 using CopeID.API.Services.Photographs;
@@ -60,20 +61,21 @@ namespace CopeID.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CopeID.API", Version = "v1" });
             });
 
-            services.AddScoped<IPhotographService, PhotographService>();
-            services.AddScoped<IGenusService, GenusService>();
-            services.AddScoped<ISpecimenService, SpecimenService>();
+            services.AddScoped<IAzureStorageService, AzureStorageService>();
             services.AddScoped<IContributorService, ContributorService>();
             services.AddScoped<IDefinitionService, DefinitionService>();
-            services.AddScoped<IReferenceService, ReferenceService>();
+            services.AddScoped<IFileService, FileService>();
             services.AddScoped<IFilterService, FilterService>();
             services.AddScoped<IFilterModelService, FilterModelService>();
             services.AddScoped<IFilterModelPropertyService, FilterModelPropertyService>();
             services.AddScoped<IFilterSectionService, FilterSectionService>();
             services.AddScoped<IFilterSectionPartService, FilterSectionPartService>();
             services.AddScoped<IFilterSectionPartOptionService, FilterSectionPartOptionService>();
+            services.AddScoped<IGenusService, GenusService>();
+            services.AddScoped<IPhotographService, PhotographService>();
+            services.AddScoped<IReferenceService, ReferenceService>();
+            services.AddScoped<ISpecimenService, SpecimenService>();
             services.AddScoped<ISpecimenFilterService, SpecimenFilterService>();
-            services.AddScoped<IAzureStorageService, AzureStorageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
