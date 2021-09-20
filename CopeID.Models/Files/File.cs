@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CopeID.Models.Files
 {
@@ -9,5 +10,8 @@ namespace CopeID.Models.Files
 
         [Required]
         public string Path { get; set; }
+
+        [NotMapped]
+        public string Data { get; set; }
     }
 }

@@ -61,7 +61,8 @@ namespace CopeID.API
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CopeID.API", Version = "v1" });
             });
 
-            services.AddScoped<IAzureStorageService, AzureStorageService>();
+            services.AddSingleton<IAzureStorageService, AzureStorageService>();
+
             services.AddScoped<IContributorService, ContributorService>();
             services.AddScoped<IDefinitionService, DefinitionService>();
             services.AddScoped<IFileService, FileService>();

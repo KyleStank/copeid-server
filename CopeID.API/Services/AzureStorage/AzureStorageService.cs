@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Threading.Tasks;
 
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Options;
@@ -28,6 +30,26 @@ namespace CopeID.API.Services.AzureStorage
             _blobServiceClient = new BlobServiceClient(connectionString);
             _blobContainerClient = _blobServiceClient.GetBlobContainerClient(_documentStorageConfig.ContainerName);
             _blobContainerClient.CreateIfNotExists();
+        }
+
+        public async Task UploadBlobAsync(string path, byte[] data)
+        {
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                await _blobContainerClient.UploadBlobAsync(path, ms);
+            }
+        }
+
+        public async Task<bool> BlobExistsAsync(string path)
+        {
+            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
+            return await blobClient.ExistsAsync();
+        }
+
+        public async Task<bool> DeleteBlobAsync(string path)
+        {
+            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
+            return await blobClient.DeleteIfExistsAsync();
         }
     }
 }
