@@ -10,9 +10,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
-
 using Newtonsoft.Json;
 
+using CopeID.API.Configurations;
+using CopeID.API.Services.AzureStorage;
 using CopeID.API.Services.Contributors;
 using CopeID.API.Services.Definitions;
 using CopeID.API.Services.Filters;
@@ -37,6 +38,9 @@ namespace CopeID.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddOptions()
+                .Configure<DocumentStorageConfig>(Configuration.GetSection("DocumentStorage"));
+
             services.AddDbContext<CopeIdDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection"),
@@ -68,12 +72,18 @@ namespace CopeID.API
             services.AddScoped<IFilterSectionService, FilterSectionService>();
             services.AddScoped<IFilterSectionPartService, FilterSectionPartService>();
             services.AddScoped<IFilterSectionPartOptionService, FilterSectionPartOptionService>();
-
             services.AddScoped<ISpecimenFilterService, SpecimenFilterService>();
+            services.AddScoped<IAzureStorageService, AzureStorageService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, CopeIdDbContext context, ILogger<Startup> logger)
+        public void Configure(
+            IApplicationBuilder app,
+            IWebHostEnvironment env,
+            CopeIdDbContext context,
+            ILogger<Startup> logger,
+            IAzureStorageService azureStorageService
+        )
         {
             if (env.IsDevelopment())
             {
@@ -97,6 +107,7 @@ namespace CopeID.API
                 );
             }
 
+            // Initialize database.
             try
             {
                 context.Database.Migrate();
@@ -110,9 +121,22 @@ namespace CopeID.API
             }
             catch (Exception exception)
             {
-                EventId initData = new EventId(101, "Error while creating database");
-                logger.LogCritical(initData, exception, initData.Name);
-                throw new Exception(initData.Name, exception);
+                EventId dbInitEvent = new EventId(101, "Error while creating database");
+                logger.LogCritical(dbInitEvent, exception, dbInitEvent.Name);
+                throw new Exception(dbInitEvent.Name, exception);
+            }
+
+            // Initialize Azure file storage.
+            try
+            {
+                string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+                azureStorageService.Initialize(connectionString);
+            }
+            catch (Exception exception)
+            {
+                EventId azureStorageEvent = new EventId(102, "Error while initializing Azure Storage");
+                logger.LogCritical(azureStorageEvent, exception, azureStorageEvent.Name);
+                throw new Exception(azureStorageEvent.Name, exception);
             }
 
             app.UseHttpsRedirection();
