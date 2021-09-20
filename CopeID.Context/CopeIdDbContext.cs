@@ -2,6 +2,7 @@
 
 using CopeID.Models.Contributors;
 using CopeID.Models.Definitions;
+using CopeID.Models.Files;
 using CopeID.Models.Filters;
 using CopeID.Models.Genuses;
 using CopeID.Models.Photographs;
@@ -19,6 +20,8 @@ namespace CopeID.Context
         public DbSet<FilterModel> FilterModels { get; set; }
 
         public DbSet<FilterModelProperty> FilterModelProperties { get; set; }
+
+        public DbSet<File> Files { get; set; }
 
         public DbSet<Filter> Filters { get; set; }
 
