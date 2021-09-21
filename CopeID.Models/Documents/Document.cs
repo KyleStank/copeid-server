@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CopeID.Models.Files
+namespace CopeID.Models.Documents
 {
-    public class File : Entity
+    public class Document : Entity
     {
         [Required]
         public string Name { get; set; }

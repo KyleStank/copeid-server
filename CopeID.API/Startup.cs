@@ -16,7 +16,7 @@ using CopeID.API.Configurations;
 using CopeID.API.Services.AzureStorage;
 using CopeID.API.Services.Contributors;
 using CopeID.API.Services.Definitions;
-using CopeID.API.Services.Files;
+using CopeID.API.Services.Documents;
 using CopeID.API.Services.Filters;
 using CopeID.API.Services.Genuses;
 using CopeID.API.Services.Photographs;
@@ -65,7 +65,7 @@ namespace CopeID.API
 
             services.AddScoped<IContributorService, ContributorService>();
             services.AddScoped<IDefinitionService, DefinitionService>();
-            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IDocumentService, DocumentService>();
             services.AddScoped<IFilterService, FilterService>();
             services.AddScoped<IFilterModelService, FilterModelService>();
             services.AddScoped<IFilterModelPropertyService, FilterModelPropertyService>();
