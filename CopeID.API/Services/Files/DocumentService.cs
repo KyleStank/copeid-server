@@ -13,6 +13,12 @@ namespace CopeID.API.Services.Documents
     public class DocumentService : BaseQueryableEntityService<Document, DocumentQueryModel>, IDocumentService
     {
         private readonly IAzureStorageService _azureStorageService;
+        private readonly string[] _validMimeTypes = new string[]
+        {
+            "image/gif",
+            "image/jpeg",
+            "image/png"
+        };
 
         public DocumentService(CopeIdDbContext context, IAzureStorageService azureStorageService) : base(context)
         {
@@ -55,6 +61,11 @@ namespace CopeID.API.Services.Documents
             Document result = _context.Remove(model)?.Entity ?? null;
             if (result != null) await _context.SaveChangesAsync();
             else throw new EntityNotDeletedException<Document>();
+        }
+
+        public virtual bool IsValidMimeType(string mimeType)
+        {
+            return _validMimeTypes.Contains(mimeType);
         }
     }
 }
