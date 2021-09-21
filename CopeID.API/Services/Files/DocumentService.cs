@@ -27,28 +27,23 @@ namespace CopeID.API.Services.Documents
 
         public override async Task<Document> Create(Document model)
         {
+            if (!IsValidMimeType(model.MimeType)) throw new EntityNotCreatedException<Document>("Unsupported MIME Type");
+
             model.Path = Guid.NewGuid().ToString();
             await _azureStorageService.UploadBlobAsync(model.Path, Convert.FromBase64String(model.Data));
 
-            Document result = (await _context.AddAsync(model))?.Entity ?? null;
-            if (result != null) await _context.SaveChangesAsync();
-            else throw new EntityNotCreatedException<Document>();
-
-            return result;
+            return await base.Create(model);
         }
 
         public override async Task<Document> Update(Document model)
         {
+            if (!IsValidMimeType(model.MimeType)) throw new EntityNotCreatedException<Document>("Unsupported MIME Type");
             if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException<Document>();
 
             await _azureStorageService.DeleteBlobAsync(model.Path);
             await _azureStorageService.UploadBlobAsync(model.Path, Convert.FromBase64String(model.Data));
 
-            Document result = _set.Update(model)?.Entity ?? null;
-            if (result != null) await _context.SaveChangesAsync();
-            else throw new EntityNotUpdatedException<Document>();
-
-            return result;
+            return await base.Update(model);
         }
 
         public override async Task Delete(Guid id)
@@ -58,9 +53,7 @@ namespace CopeID.API.Services.Documents
 
             await _azureStorageService.DeleteBlobAsync(model.Path);
 
-            Document result = _context.Remove(model)?.Entity ?? null;
-            if (result != null) await _context.SaveChangesAsync();
-            else throw new EntityNotDeletedException<Document>();
+            await base.Delete(id);
         }
 
         public virtual bool IsValidMimeType(string mimeType)

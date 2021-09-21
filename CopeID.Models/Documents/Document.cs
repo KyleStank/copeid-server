@@ -11,6 +11,9 @@ namespace CopeID.Models.Documents
         [Required]
         public string Path { get; set; }
 
+        [Required]
+        public string MimeType { get; set; }
+
         [NotMapped]
         public string Data { get; set; }
     }

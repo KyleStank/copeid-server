@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Constants\**" />
+    <Content Remove="Constants\**" />
+    <EmbeddedResource Remove="Constants\**" />
+    <None Remove="Constants\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.10">
@@ -23,10 +30,6 @@
     <ProjectReference Include="../CopeID.Models/CopeID.Models.csproj" />
     <ProjectReference Include="../CopeID.QueryModels/CopeID.QueryModels.csproj" />
     <ProjectReference Include="../CopeID.Seeding/CopeID.Seeding.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Constants\" />
   </ItemGroup>
 
 </Project>
