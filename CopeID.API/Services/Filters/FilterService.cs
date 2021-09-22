@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using CopeID.API.FilterModels;
-using CopeID.API.ViewModels;
+using CopeID.API.ViewModels.Filters;
 using CopeID.Context;
 using CopeID.Models;
 using CopeID.Models.Filters;

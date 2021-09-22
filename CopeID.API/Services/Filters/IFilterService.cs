@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-using CopeID.API.ViewModels;
+using CopeID.API.ViewModels.Filters;
 using CopeID.Models.Filters;
 using CopeID.QueryModels.Filters;
 

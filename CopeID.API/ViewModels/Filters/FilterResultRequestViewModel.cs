@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CopeID.API.ViewModels
+namespace CopeID.API.ViewModels.Filters
 {
     public class FilterResultRequestViewModel
     {

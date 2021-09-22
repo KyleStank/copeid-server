@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using CopeID.API.Services.Filters;
-using CopeID.API.ViewModels;
+using CopeID.API.ViewModels.Filters;
 using CopeID.Models.Filters;
 using CopeID.QueryModels.Filters;
 
