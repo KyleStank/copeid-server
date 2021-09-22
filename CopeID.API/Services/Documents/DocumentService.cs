@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 using CopeID.API.Services.AzureStorage;
+using CopeID.API.ViewModels.Documents;
 using CopeID.Context;
 using CopeID.Core.Exceptions;
 using CopeID.Models.Documents;
@@ -27,7 +28,8 @@ namespace CopeID.API.Services.Documents
 
         public override async Task<Document> Create(Document model)
         {
-            if (!IsValidMimeType(model.MimeType)) throw new EntityNotCreatedException<Document>("Unsupported MIME Type");
+            if (model == null) throw new EntityNotCreatedException<Document>();
+            if (!IsValidMimeType(new DocumentMimeType(model.MimeType))) throw new EntityNotCreatedException<Document>("Unsupported MIME Type");
 
             model.Path = Guid.NewGuid().ToString();
             await _azureStorageService.UploadBlobAsync(model.Path, Convert.FromBase64String(model.Data));
@@ -37,8 +39,8 @@ namespace CopeID.API.Services.Documents
 
         public override async Task<Document> Update(Document model)
         {
-            if (!IsValidMimeType(model.MimeType)) throw new EntityNotCreatedException<Document>("Unsupported MIME Type");
             if (model == null || !_set.Any(x => x.Id == model.Id)) throw new EntityNotFoundException<Document>();
+            if (!IsValidMimeType(new DocumentMimeType(model.MimeType))) throw new EntityNotUpdatedException<Document>("Unsupported MIME Type");
 
             await _azureStorageService.DeleteBlobAsync(model.Path);
             await _azureStorageService.UploadBlobAsync(model.Path, Convert.FromBase64String(model.Data));
@@ -56,9 +58,9 @@ namespace CopeID.API.Services.Documents
             await base.Delete(id);
         }
 
-        public virtual bool IsValidMimeType(string mimeType)
+        public virtual bool IsValidMimeType(DocumentMimeType model)
         {
-            return _validMimeTypes.Contains(mimeType);
+            return model != null && _validMimeTypes.Contains(model?.MimeType);
         }
     }
 }
