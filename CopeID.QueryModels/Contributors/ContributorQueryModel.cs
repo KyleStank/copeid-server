@@ -11,9 +11,13 @@ namespace CopeID.QueryModels.Contributors
         [FromQuery]
         public string[] Name { get; set; } = null;
 
+        [FromQuery]
+        public string[] Description { get; set; } = null;
+
         protected override IQueryable<Contributor> GetCustomQuery(IQueryable<Contributor> query)
         {
             if (Name != null) query = query.Where(e => Name.Contains(e.Name));
+            if (Description != null) query = query.Where(e => Description.Contains(e.Description));
 
             return query;
         }
