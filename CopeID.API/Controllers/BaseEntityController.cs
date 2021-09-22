@@ -3,50 +3,43 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 
-using CopeID.API.Responses;
 using CopeID.API.Services;
-using CopeID.API.QueryModels;
 using CopeID.Core.Exceptions;
 using CopeID.Models;
+
 namespace CopeID.API.Controllers
 {
-    [ProducesErrorResponseType(typeof(ErrorResponse))]
-    public abstract class BaseEntityController<TEntity, TQueryModel, TLogger, TService> : BaseApiController
+    public abstract class BaseEntityController<TEntity, TService> : BaseApiController
         where TEntity : Entity
-        where TQueryModel : EntityQueryModel<TEntity>
-        where TLogger : ControllerBase
-        where TService : IBaseEntityService<TEntity, TQueryModel>
+        where TService : IBaseEntityService<TEntity>
     {
-        protected readonly ILogger<TLogger> _logger;
         protected readonly TService _entityService;
 
-        public BaseEntityController(ILogger<TLogger> logger, TService entityService)
+        public BaseEntityController(TService entityService)
         {
-            _logger = logger;
             _entityService = entityService;
         }
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual async Task<IActionResult> Get([FromQuery] TQueryModel queryModel)
+        public virtual async Task<IActionResult> Get()
         {
-            List<TEntity> entities = await _entityService.GetAll(queryModel);
+            List<TEntity> entities = await _entityService.GetAll();
             return Ok(entities);
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Get(Guid id, [FromQuery] TQueryModel queryModel)
+        public virtual async Task<IActionResult> Get(Guid id)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.GetUntrackedAsync(id, queryModel);
+                TEntity entity = await _entityService.GetUntrackedAsync(id);
                 return Ok(entity);
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
@@ -59,13 +52,13 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
 
-        public virtual async Task<IActionResult> Create([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
+        public virtual async Task<IActionResult> Create([FromBody] TEntity model)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.Create(model, queryModel);
+                TEntity entity = await _entityService.Create(model);
                 return CreatedAtAction(nameof(Create), entity);
             }
             catch (EntityNotCreatedException<TEntity> notCreatedException)
@@ -78,13 +71,13 @@ namespace CopeID.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public virtual async Task<IActionResult> Update([FromBody] TEntity model, [FromQuery] TQueryModel queryModel)
+        public virtual async Task<IActionResult> Update([FromBody] TEntity model)
         {
             if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
 
             try
             {
-                TEntity entity = await _entityService.Update(model, queryModel);
+                TEntity entity = await _entityService.Update(model);
                 return Ok(entity);
             }
             catch (EntityNotFoundException<TEntity> notFoundException)
