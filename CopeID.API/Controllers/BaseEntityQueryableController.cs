@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using CopeID.API.Services;
+using CopeID.API.ViewModels.Pagination;
 using CopeID.Core.Exceptions;
 using CopeID.Models;
 using CopeID.QueryModels;
@@ -26,8 +27,19 @@ namespace CopeID.API.Controllers
 
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public virtual async Task<IActionResult> Get([FromQuery] TQueryModel queryModel)
+        public virtual async Task<IActionResult> Get([FromQuery] TQueryModel queryModel, [FromQuery] PaginationRequest paginationRequest)
         {
+            // If a pagination request was supplied, use pagination and limit the number of returned results.
+            if (paginationRequest.IsValid())
+            {
+                PaginationResponse<TEntity> paginationResponse = await _entityService.GetPaged(
+                    new PaginationRequest(paginationRequest.PageNumber, paginationRequest.PageSize),
+                    queryModel
+                );
+                return Ok(paginationResponse);
+            }
+
+            // Otherwise, return everything.
             List<TEntity> entities = await _entityService.GetAll(queryModel);
             return Ok(entities);
         }

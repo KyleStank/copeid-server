@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using CopeID.API.ViewModels.Pagination;
 using CopeID.Models;
 
 namespace CopeID.API.Services
@@ -10,6 +11,7 @@ namespace CopeID.API.Services
         where TEntity : Entity
     {
         Task<List<TEntity>> GetAll();
+        Task<PaginationResponse<TEntity>> GetPaged(PaginationRequest paginationRequest);
         Task<TEntity> GetTrackedAsync(Guid id);
         Task<TEntity> GetUntrackedAsync(Guid id);
 
