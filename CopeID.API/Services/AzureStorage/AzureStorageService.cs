@@ -32,18 +32,19 @@ namespace CopeID.API.Services.AzureStorage
             _blobContainerClient.CreateIfNotExists();
         }
 
+        public string GetBlobUri(string path)
+        {
+            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
+            string uri = blobClient.GenerateSasUri(Azure.Storage.Sas.BlobSasPermissions.Read, DateTimeOffset.Now.AddDays(1)).AbsoluteUri;
+            return uri;
+        }
+
         public async Task UploadBlobAsync(string path, byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
             {
                 await _blobContainerClient.UploadBlobAsync(path, ms);
             }
-        }
-
-        public async Task<bool> BlobExistsAsync(string path)
-        {
-            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
-            return await blobClient.ExistsAsync();
         }
 
         public async Task<bool> DeleteBlobAsync(string path)
