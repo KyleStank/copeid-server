@@ -9,7 +9,7 @@ namespace CopeID.API.Services.Documents
 {
     public interface IDocumentService : IBaseQueryableEntityService<Document, DocumentQueryModel>
     {
-        Task<string> GetUri(Guid id);
+        Task<string> GetUri(Guid id, string contentType = null);
 
         bool IsValidMimeType(DocumentMimeType model);
     }
