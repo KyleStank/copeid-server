@@ -58,6 +58,14 @@ namespace CopeID.API.Services.Documents
             await base.Delete(id);
         }
 
+        public virtual async Task<string> GetUri(Guid id, string contentType = null)
+        {
+            Document document = await GetUntrackedAsync(id);
+            if (document == null) throw new EntityNotFoundException<Document>();
+
+            return _azureStorageService.GetBlobUri(document.Path, document.MimeType);
+        }
+
         public virtual bool IsValidMimeType(DocumentMimeType model)
         {
             return model != null && _validMimeTypes.Contains(model?.MimeType);

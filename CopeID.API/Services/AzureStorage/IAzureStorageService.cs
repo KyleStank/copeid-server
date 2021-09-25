@@ -6,6 +6,8 @@ namespace CopeID.API.Services.AzureStorage
     {
         void Initialize(string connectionString);
 
+        string GetBlobUri(string path, string contentType = null);
+
         Task UploadBlobAsync(string path, byte[] data);
 
         Task<bool> DeleteBlobAsync(string path);

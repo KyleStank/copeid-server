@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading.Tasks;
 
 using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 using Microsoft.Extensions.Options;
 
 using CopeID.API.Configurations;
@@ -32,18 +33,21 @@ namespace CopeID.API.Services.AzureStorage
             _blobContainerClient.CreateIfNotExists();
         }
 
+        public string GetBlobUri(string path, string contentType = null)
+        {
+            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
+            BlobSasBuilder sasBuilder = new BlobSasBuilder(BlobSasPermissions.Read, DateTimeOffset.Now.AddDays(1));
+            if (contentType != null) sasBuilder.ContentType = contentType;
+
+            return blobClient.GenerateSasUri(sasBuilder).AbsoluteUri;
+        }
+
         public async Task UploadBlobAsync(string path, byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
             {
                 await _blobContainerClient.UploadBlobAsync(path, ms);
             }
-        }
-
-        public async Task<bool> BlobExistsAsync(string path)
-        {
-            BlobClient blobClient = _blobContainerClient.GetBlobClient(path);
-            return await blobClient.ExistsAsync();
         }
 
         public async Task<bool> DeleteBlobAsync(string path)
