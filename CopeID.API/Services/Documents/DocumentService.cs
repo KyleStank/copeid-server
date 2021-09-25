@@ -61,6 +61,8 @@ namespace CopeID.API.Services.Documents
         public virtual async Task<string> GetUri(Guid id, string contentType = null)
         {
             Document document = await GetUntrackedAsync(id);
+            if (document == null) throw new EntityNotFoundException<Document>();
+
             return _azureStorageService.GetBlobUri(document.Path, document.MimeType);
         }
 

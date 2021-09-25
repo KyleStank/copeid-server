@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using CopeID.API.Services.Documents;
 using CopeID.API.ViewModels.Documents;
+using CopeID.Core.Exceptions;
 using CopeID.Models.Documents;
 using CopeID.QueryModels.Documents;
 
@@ -19,10 +20,20 @@ namespace CopeID.API.Controllers.Documents
         { }
 
         [HttpGet("{id}/Uri")]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public virtual async Task<IActionResult> GetDocumentUri(Guid id)
         {
-            string uri = await _entityService.GetUri(id);
-            return Ok(uri);
+            if (!ModelState.IsValid) return CreateBadRequestResponse("Invalid body provided");
+
+            try
+            {
+                string uri = await _entityService.GetUri(id);
+                return Ok(uri);
+            }
+            catch (EntityNotFoundException<Document> notFoundException)
+            {
+                return CreateNotFoundResponse(notFoundException.Message);
+            }
         }
 
         [HttpPost("VerifyMime")]
