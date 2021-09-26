@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
+using CopeID.API.ViewModels.Pagination;
 using CopeID.Context;
 using CopeID.Models;
 using CopeID.QueryModels;
@@ -20,6 +21,16 @@ namespace CopeID.API.Services
 
         public virtual async Task<List<TEntity>> GetAll(TQueryModel queryModel) =>
             await (queryModel != null ? queryModel.FilterQuery(_set.AsTracking()) : _set.AsTracking()).ToListAsync();
+
+        public virtual async Task<PaginationResponse<TEntity>> GetPaged(PaginationRequest paginationRequest, TQueryModel queryModel)
+        {
+            IQueryable<TEntity> allResultsQuery = queryModel != null ? queryModel.FilterQuery(_set.AsTracking()) : _set.AsTracking();
+            IQueryable<TEntity> pagedResultsQuery = allResultsQuery.Skip(paginationRequest.PageSize * (paginationRequest.PageNumber - 1)).Take(paginationRequest.PageSize);
+            return new PaginationResponse<TEntity>(
+                await allResultsQuery.CountAsync(),
+                await pagedResultsQuery.ToListAsync()
+            );
+        }
 
         public virtual async Task<TEntity> GetTrackedAsync(Guid id, TQueryModel queryModel) =>
             await FindEntityAsync(id, queryModel, _set.AsTracking());
