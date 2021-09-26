@@ -54,7 +54,7 @@ namespace CopeID.QueryModels
         {
             if (Include != null)
             {
-                string[] includeProperties = FindValidProperties(Include.ToPascalCase());
+                string[] includeProperties = FindValidProperties(Include.ToPascalCase('.'));
                 foreach (string prop in includeProperties) query = query.Include(prop);
             }
 
@@ -66,31 +66,31 @@ namespace CopeID.QueryModels
             if (OrderBy != null || OrderByDescending != null)
             {
                 // Order query ascendingly.
-                string[] ascendingProperties = FindValidProperties(OrderBy?.ToPascalCase());
+                string[] ascendingProperties = FindValidProperties(OrderBy?.ToPascalCase('.'));
                 for (int i = 0; i < ascendingProperties.Length; i++)
                 {
                     string prop = ascendingProperties[i];
                     if (i == 0)
                     {
-                        query = query.OrderBy(prop);
+                        query = query.OrderByProperty(prop, '.');
                         continue;
                     }
 
-                    query = query.ThenBy(prop);
+                    query = query.ThenByProperty(prop, '.');
                 }
 
                 // Order query descendingly.
-                string[] descendingProperties = FindValidProperties(OrderByDescending?.ToPascalCase());
+                string[] descendingProperties = FindValidProperties(OrderByDescending?.ToPascalCase('.'));
                 for (int i = 0; i < descendingProperties.Length; i++)
                 {
                     string prop = descendingProperties[i];
                     if (i == 0 && ascendingProperties.Length == 0)
                     {
-                        query = query.OrderByDescending(prop);
+                        query = query.OrderByPropertyDescending(prop, '.');
                         continue;
                     }
 
-                    query = query.ThenByDescending(prop);
+                    query = query.ThenByPropertyDescending(prop, '.');
                 }
             }
 
@@ -100,6 +100,8 @@ namespace CopeID.QueryModels
         protected abstract IQueryable<TEntity> GetCustomQuery(IQueryable<TEntity> query);
 
         protected string[] FindValidProperties(string[] properties) =>
-            properties?.Where(x => _entityProperties.Any(p => p.Name == x)).ToArray() ?? new string[0];
+            properties?.Where(x =>
+                _entityProperties.Any(p => p.Name == x) || _entityType.GetPropertyRecursive(x) != null
+            ).ToArray() ?? Array.Empty<string>();
     }
 }
